@@ -1,0 +1,13 @@
+# Minimal Supabase CLI config. `supabase link --project-ref <ref>` then `supabase db push`.
+project_id = "hashline"
+
+[db]
+major_version = 16
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+
+[auth]
+site_url = "http://localhost:5173"
+additional_redirect_urls = ["http://localhost:5173/account"]

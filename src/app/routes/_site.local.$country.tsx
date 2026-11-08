@@ -3,6 +3,7 @@ import type { Route } from "./+types/_site.local.$country";
 import { ArticleCard } from "~/components/article/ArticleCard";
 import { BodyHtml } from "~/components/article/BodyHtml";
 import { NewsletterBox } from "~/components/capture/NewsletterBox";
+import { StickyNewsletter } from "~/components/capture/StickyNewsletter";
 import { Breadcrumbs } from "~/components/layout/Breadcrumbs";
 import { NotFound } from "~/components/layout/NotFound";
 import { SampleDataNotice } from "~/components/market/SampleDataNotice";
@@ -209,6 +210,7 @@ export default function LocalHub({ loaderData }: Route.ComponentProps) {
       </section>
 
       <NewsletterBox variant="page" country={country.code} heading={`Get the ${country.name} brief`} />
+      <StickyNewsletter country={country.code} />
     </div>
   );
 }

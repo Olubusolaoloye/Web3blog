@@ -8,6 +8,8 @@ import {
   autoRelatedQuery,
   categoriesQuery,
   correctionsQuery,
+  packagesQuery,
+  partnerSettingsQuery,
   countryByCodeQuery,
   pickedRelatedQuery,
   sponsoredBySlugQuery,
@@ -21,6 +23,8 @@ import type {
   Correction,
   CountryDoc,
   Paged,
+  PartnerPackage,
+  PartnerSettings,
   SponsoredPost,
   SponsoredSummary,
   Taxon,
@@ -94,4 +98,9 @@ export const sanitySource: ContentSource = {
 
   listCorrections: () => fetch<Correction[]>(correctionsQuery),
   getCountry: (code) => fetch<CountryDoc | null>(countryByCodeQuery, { code }),
+  listPackages: () => fetch<PartnerPackage[]>(packagesQuery),
+  async getPartnerSettings() {
+    const s = await fetch<PartnerSettings | null>(partnerSettingsQuery);
+    return s ?? { headline: "Partner with us", audienceStats: [], countries: [], formats: [], mediaKitUrl: "/media-kit.pdf" };
+  },
 };

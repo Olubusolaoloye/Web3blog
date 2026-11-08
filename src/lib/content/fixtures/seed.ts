@@ -593,6 +593,53 @@ export const seedCorrections = [
   },
 ];
 
+// ---------------------------------------------------------------------------------------------
+// Partners hub. PLACEHOLDER prices and audience figures: set real ones in the Studio before launch.
+// ---------------------------------------------------------------------------------------------
+const pkg = (code: string, name: string, priceUsd: number, summary: string, deliverables: string[], order: number, priceNote?: string) => ({
+  _id: `package.${code}`,
+  _type: "package" as const,
+  code,
+  name,
+  priceUsd,
+  ...(priceNote ? { priceNote } : {}),
+  summary,
+  deliverables,
+  order,
+  active: true,
+});
+
+export const seedPackages = [
+  pkg("pr-basic", "Press release", 300, "Publish your announcement in our labelled press section.", ["Published under /press with a clear label", "Shared once on Telegram", "Do-not-follow links, as with all paid content"], 10),
+  pkg("sponsored-article", "Sponsored article", 900, "A clearly labelled article you supply, edited for clarity and our standards.", ["Labelled 'Sponsored' with a disclosure line", "Social preview image", "30-day placement on the press index"], 20),
+  pkg("newsletter-top-slot", "Newsletter top slot", 600, "The first placement in one edition of our daily brief.", ["One edition, top position", "Clicks and opens reported"], 30, "per edition"),
+  pkg("launch-in-nigeria", "Launch in Nigeria", 3500, "A launch bundle for teams entering the Nigerian market.", ["Sponsored article + press release", "Two newsletter slots", "Verified directory listing", "Local P2P and regulation briefing"], 40),
+  pkg("launch-in-kenya", "Launch in Kenya", 3000, "A launch bundle for teams entering the Kenyan market.", ["Sponsored article + press release", "Two newsletter slots", "Verified directory listing", "Local regulation briefing"], 50),
+  pkg("directory-verified", "Directory: Verified", 150, "A verified badge on your directory listing after KYB checks.", ["KYB review", "Verified badge", "Higher placement in listings"], 60, "per month"),
+  pkg("directory-featured", "Directory: Featured", 450, "Top placement in your category and country pages.", ["Everything in Verified", "Featured strip on the homepage", "Top of category lists"], 70, "per month"),
+  pkg("sponsored-research", "Sponsored research", 6000, "A co-branded research report with our methodology and independence rules.", ["Report design and data analysis", "Gated download with lead sharing (opt-in)", "Launch newsletter feature"], 80, "from"),
+];
+
+export const seedPartnerSettings = {
+  _id: "partnerSettings",
+  _type: "partnerSettings",
+  headline: "Reach crypto users across Africa",
+  intro: "Labelled, standards-checked placements in front of readers in Nigeria, Kenya, South Africa and Ghana. No gambling, betting or loan advertisers.",
+  audienceStats: [
+    { _key: "s0", label: "Monthly readers", value: "Sample: 250k", note: "Placeholder until launch" },
+    { _key: "s1", label: "Newsletter subscribers", value: "Sample: 40k", note: "Placeholder until launch" },
+    { _key: "s2", label: "Telegram + WhatsApp community", value: "Sample: 60k", note: "Placeholder until launch" },
+  ],
+  statsUpdatedAt: "2026-11-01",
+  countries: ["ng", "ke", "za", "gh"],
+  formats: [
+    { _key: "f0", name: "Sponsored articles", description: "Labelled articles under /press, never mixed with our news." },
+    { _key: "f1", name: "Newsletter placements", description: "Top slot in the daily brief." },
+    { _key: "f2", name: "Directory listings", description: "Verified and Featured tiers for exchanges, wallets and services." },
+    { _key: "f3", name: "Research", description: "Sponsored reports with our methodology and independence rules." },
+  ],
+};
+
 export const seedDocuments = [
   ...seedAuthors,
   ...seedCountries,
@@ -601,5 +648,7 @@ export const seedDocuments = [
   ...seedArticles,
   ...seedSponsoredPosts,
   ...seedCorrections,
+  ...seedPackages,
+  seedPartnerSettings,
 ];
 export type SeedDocument = (typeof seedDocuments)[number];

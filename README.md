@@ -28,6 +28,12 @@ Set `COINGECKO_API_KEY` (demo or pro plan, `COINGECKO_API_TIER`) for live prices
 labelled sample data. FX comes from open.er-api.com (or `FX_API_KEY`). Set `UPSTASH_REDIS_REST_URL` and
 `UPSTASH_REDIS_REST_TOKEN` to share the market cache between server instances. P2P rates are rows in `p2p_rates`.
 
+### Lead capture
+Sign-ups and bookings are stored in Supabase when `VITE_SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` are set
+(in memory otherwise). Set `BEEHIIV_API_KEY` + `BEEHIIV_PUBLICATION_ID` to sync subscribers, `TELEGRAM_BOT_TOKEN` +
+`TELEGRAM_TEAM_CHAT_ID` and/or `SLACK_WEBHOOK_URL` for team alerts, and `RESEND_API_KEY` + `EMAIL_FROM` (+
+`TEAM_NOTIFY_EMAIL`) for email. `pnpm media-kit` regenerates `public/media-kit.pdf`.
+
 ### Connect Supabase
 ```bash
 supabase link --project-ref <ref>

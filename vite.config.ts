@@ -21,13 +21,13 @@ const SHARED = [
   "lib/market/sparkline",
   "lib/capture/source",
   "components/layout/Header",
-  "components/layout/Footer",
   "components/layout/Ticker",
   "components/layout/Logo",
   "components/layout/CountrySwitcher",
   "components/layout/ThemeToggle",
   "components/layout/Breadcrumbs",
   "components/layout/NotFound",
+  "components/article/BodyHtml",
   "components/media/",
   "components/capture/NewsletterBox",
   "components/market/PriceChip",
@@ -43,6 +43,8 @@ export default defineConfig(({ isSsrBuild }) => ({
   build: isSsrBuild
     ? {}
     : {
+        // React Router preloads route modules itself; Vite's dynamic-import preload helper only adds bytes.
+        modulePreload: false,
         rollupOptions: {
           output: {
             // Shared app code (components, lib, config) ships as one chunk instead of ~15 tiny ones.

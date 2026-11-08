@@ -110,6 +110,38 @@ export interface CountryDoc {
   recommendedExchanges: string[];
 }
 
+export const packageCodes = [
+  "pr-basic",
+  "sponsored-article",
+  "newsletter-top-slot",
+  "launch-in-nigeria",
+  "launch-in-kenya",
+  "directory-verified",
+  "directory-featured",
+  "sponsored-research",
+] as const;
+export type PackageCode = (typeof packageCodes)[number];
+
+export interface PartnerPackage {
+  code: PackageCode;
+  name: string;
+  priceUsd: number;
+  priceNote?: string;
+  summary: string;
+  deliverables: string[];
+}
+
+export interface PartnerSettings {
+  headline: string;
+  intro?: string;
+  audienceStats: { label: string; value: string; note?: string }[];
+  statsUpdatedAt?: string;
+  countries: string[];
+  formats: { name: string; description?: string }[];
+  /** Sanity file URL, or the bundled /media-kit.pdf when none is uploaded. */
+  mediaKitUrl: string;
+}
+
 export interface ListArticlesOptions {
   limit?: number;
   /** CoinGecko id in the article's `coins` */
@@ -154,4 +186,7 @@ export interface ContentSource {
   listSponsoredPosts(options?: { limit?: number; includeNoindex?: boolean }): Promise<SponsoredSummary[]>;
   listCorrections(): Promise<Correction[]>;
   getCountry(code: string): Promise<CountryDoc | null>;
+  /** Active packages in display order. Prices always come from here, never from the browser. */
+  listPackages(): Promise<PartnerPackage[]>;
+  getPartnerSettings(): Promise<PartnerSettings>;
 }

@@ -96,7 +96,8 @@ test("country switcher changes prices and theme toggle persists", async ({ page 
   await expect(page.getByTestId("ticker")).toContainText(/R\s\d/);
 
   const before = await page.locator("html").getAttribute("data-theme");
-  await page.getByTestId("theme-toggle").click();
+  // The attribute changes optimistically; wait for the cookie to be saved before reloading.
+  await Promise.all([page.waitForResponse((r) => r.url().includes("/api/theme")), page.getByTestId("theme-toggle").click()]);
   await expect(page.locator("html")).not.toHaveAttribute("data-theme", before ?? "");
   await page.reload();
   await expect(page.locator("html")).not.toHaveAttribute("data-theme", before ?? "");
@@ -120,15 +121,16 @@ test("news index filters by category and searches", async ({ page }) => {
 });
 
 test("newsletter form validates and reports status", async ({ page }) => {
+  await page.setExtraHTTPHeaders({ "x-test-ip": "10.250.250.250" });
   await page.goto(`/news/${SLUG}`);
   await page.waitForLoadState("networkidle");
   const box = page.getByTestId("newsletter-end-of-article");
   await box.getByLabel("Email address").fill("not-an-email");
   await box.getByRole("button", { name: "Subscribe" }).click();
   await expect(box.getByRole("alert")).toContainText(/email/i);
-  await box.getByLabel("Email address").fill("reader@example.com");
+  await box.getByLabel("Email address").fill(`ssr-${Date.now()}@example.com`);
   await box.getByRole("button", { name: "Subscribe" }).click();
-  await expect(box.getByRole("alert")).toContainText(/open soon/i);
+  await expect(box.getByRole("status")).toContainText("You're on the list");
 });
 
 test("internal links in server-rendered bodies navigate client-side", async ({ page }) => {

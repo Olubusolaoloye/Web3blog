@@ -4,6 +4,8 @@ import {
   seedCategories,
   seedCorrections,
   seedCountries,
+  seedPackages,
+  seedPartnerSettings,
   seedSponsoredPosts,
   seedTags,
   type SeedImage,
@@ -16,6 +18,7 @@ import type {
   CountryDoc,
   ImageData,
   ListArticlesOptions,
+  PackageCode,
   SponsoredPost,
   SponsoredSummary,
   Taxon,
@@ -217,6 +220,33 @@ export const fixtureSource: ContentSource = {
       recommendedExchanges: c.recommendedExchanges,
     };
     return doc;
+  },
+
+  async listPackages() {
+    return [...seedPackages]
+      .filter((p) => p.active)
+      .sort((a, b) => a.order - b.order)
+      .map((p) => ({
+        code: p.code as PackageCode,
+        name: p.name,
+        priceUsd: p.priceUsd,
+        priceNote: "priceNote" in p ? (p.priceNote as string) : undefined,
+        summary: p.summary,
+        deliverables: p.deliverables,
+      }));
+  },
+
+  async getPartnerSettings() {
+    const s = seedPartnerSettings;
+    return {
+      headline: s.headline,
+      intro: s.intro,
+      audienceStats: s.audienceStats.map(({ label, value, note }) => ({ label, value, note })),
+      statsUpdatedAt: s.statsUpdatedAt,
+      countries: s.countries,
+      formats: s.formats.map(({ name, description }) => ({ name, description })),
+      mediaKitUrl: "/media-kit.pdf",
+    };
   },
 
   async listCorrections() {

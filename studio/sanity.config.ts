@@ -21,6 +21,10 @@ export default defineConfig({
               .title("Site settings")
               .id("siteSettings")
               .child(S.document().schemaType("siteSettings").documentId("siteSettings")),
+            S.listItem()
+              .title("Partners hub settings")
+              .id("partnerSettings")
+              .child(S.document().schemaType("partnerSettings").documentId("partnerSettings")),
             S.divider(),
             S.documentTypeListItem("article").title("Articles"),
             S.documentTypeListItem("sponsoredPost").title("Sponsored & press (only /press)"),

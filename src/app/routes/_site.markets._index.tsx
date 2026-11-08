@@ -1,6 +1,7 @@
 import { Link } from "react-router";
 import type { Route } from "./+types/_site.markets._index";
 import { NewsletterBox } from "~/components/capture/NewsletterBox";
+import { StickyNewsletter } from "~/components/capture/StickyNewsletter";
 import { Breadcrumbs } from "~/components/layout/Breadcrumbs";
 import { Pagination } from "~/components/layout/Pagination";
 import { SampleDataNotice } from "~/components/market/SampleDataNotice";
@@ -133,6 +134,7 @@ export default function Markets({ loaderData }: Route.ComponentProps) {
 
       <Pagination page={page} totalPages={totalPages} hrefFor={(p) => href({ page: p })} prevLabel="← Previous" nextLabel="Next →" />
       <NewsletterBox variant="page" country={countryCode} heading="Get prices and scam alerts in your inbox" />
+      <StickyNewsletter country={countryCode} />
     </div>
   );
 }

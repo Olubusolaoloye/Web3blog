@@ -13,6 +13,7 @@ module.exports = {
         "http://localhost:3300/news/bitcoin-dollar-naira-buyers",
         "http://localhost:3300/news",
         "http://localhost:3300/markets",
+        "http://localhost:3300/partners",
       ],
       numberOfRuns: 3,
       settings: {

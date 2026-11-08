@@ -196,7 +196,7 @@ export default function CoinPage({ loaderData }: Route.ComponentProps) {
         </div>
 
         <aside className="space-y-6">
-          <AlertCTA symbol={coin.symbol} currency={currency} locale={locale} currentPrice={quote.price} />
+          <AlertCTA symbol={coin.symbol} currency={currency} locale={locale} country={countryCode} currentPrice={quote.price} />
           {related.length ? (
             <section aria-labelledby="coin-news" className="space-y-3">
               <h2 id="coin-news" className="text-lg font-semibold">{coin.name} news</h2>

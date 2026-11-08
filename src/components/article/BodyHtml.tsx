@@ -2,9 +2,9 @@ import type { MouseEvent } from "react";
 import { useNavigate } from "react-router";
 
 /**
- * Shows server-rendered article HTML (see render-body.server.tsx). Internal links still navigate client-side.
+ * Shows server-rendered HTML (article bodies, the footer). Internal links still navigate client-side.
  */
-export function BodyHtml({ html }: { html: string }) {
+export function BodyHtml({ html, as: Tag = "div", className }: { html: string; as?: "div" | "footer"; className?: string }) {
   const navigate = useNavigate();
   if (!html) return null;
   const onClick = (e: MouseEvent<HTMLDivElement>) => {
@@ -16,5 +16,5 @@ export function BodyHtml({ html }: { html: string }) {
     navigate(href);
   };
   // Click delegation only: the links inside stay focusable and keyboard-activated as normal anchors.
-  return <div onClick={onClick} dangerouslySetInnerHTML={{ __html: html }} />;
+  return <Tag className={className} onClick={onClick} dangerouslySetInnerHTML={{ __html: html }} />;
 }

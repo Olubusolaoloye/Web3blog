@@ -1,4 +1,6 @@
+import { useEffect } from "react";
 import { Link, useFetcher, useLocation } from "react-router";
+import { track } from "~/lib/analytics/track";
 import { launchedCountries, type CountryCode } from "~/config/countries";
 import { site } from "~/config/site";
 import { captureSource, type CaptureVariant } from "~/lib/capture/source";
@@ -7,7 +9,7 @@ import { cn } from "~/lib/utils";
 type SubscribeResult = { ok: true } | { ok: false; error: string; fieldErrors?: Record<string, string> };
 
 interface Props {
-  variant: Extract<CaptureVariant, "inline" | "end-of-article" | "homepage" | "page">;
+  variant: CaptureVariant;
   country: CountryCode;
   heading?: string;
   blurb?: string;
@@ -23,6 +25,11 @@ export function NewsletterBox({ variant, country, heading, blurb }: Props) {
   const id = `nl-${variant}`;
   const result = fetcher.data;
   const busy = fetcher.state !== "idle";
+  const source = captureSource(variant, pathname);
+  const ok = result?.ok === true;
+  useEffect(() => {
+    if (ok) track("subscribe", { source });
+  }, [ok, source]);
 
   return (
     <section
@@ -36,7 +43,7 @@ export function NewsletterBox({ variant, country, heading, blurb }: Props) {
       <h2 id={`${id}-heading`} className="text-lg font-semibold">
         {heading ?? "Get the daily brief"}
       </h2>
-      <p className="mt-1 text-sm text-muted">
+      <p className={cn("mt-1 text-sm text-muted", variant === "sticky-footer" && "hidden sm:block")}>
         {blurb ?? "The crypto news that matters for your country, prices in your currency, and scam alerts. Free, every weekday."}
       </p>
 
@@ -51,7 +58,7 @@ export function NewsletterBox({ variant, country, heading, blurb }: Props) {
         </div>
       ) : (
         <fetcher.Form method="post" action="/api/subscribe" className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto_auto]" noValidate>
-          <input type="hidden" name="source" value={captureSource(variant, pathname)} />
+          <input type="hidden" name="source" value={source} />
           <div className="absolute -left-[9999px]" aria-hidden>
             <label htmlFor={`${id}-website`}>Website</label>
             <input id={`${id}-website`} name="website" type="text" tabIndex={-1} autoComplete="off" />

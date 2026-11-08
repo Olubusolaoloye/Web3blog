@@ -11,7 +11,9 @@ export default defineConfig({
   webServer: {
     command: `pnpm build && PORT=${PORT} pnpm start`,
     url: `http://localhost:${PORT}`,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
+    // In-memory capture stores + /api/test-outbox; per-test client IPs via a test header.
+    env: { E2E_TEST_MODE: "1", TRUSTED_IP_HEADER: "x-test-ip" },
     timeout: 180_000,
   },
 });

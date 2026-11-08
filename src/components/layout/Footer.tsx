@@ -1,11 +1,12 @@
 import { Link } from "react-router";
+import { footerNav } from "~/config/footer";
 import { site } from "~/config/site";
 import { Logo } from "./Logo";
 
 export function Footer() {
   const year = new Date().getFullYear();
   return (
-    <footer className="mt-16 border-t border-border bg-surface">
+    <div className="mt-16 border-t border-border bg-surface">
       <div className="container-content grid gap-8 py-10 sm:grid-cols-2 lg:grid-cols-5">
         <div className="space-y-3 lg:col-span-1">
           <Logo />
@@ -16,7 +17,7 @@ export function Footer() {
             <li><a href={site.socials.x} rel="noopener" className="hover:text-signal-ink">X</a></li>
           </ul>
         </div>
-        {site.footerNav.map((group) => (
+        {footerNav.map((group) => (
           <nav key={group.heading} aria-label={group.heading}>
             <h2 className="mb-3 text-sm font-semibold">{group.heading}</h2>
             <ul className="space-y-2 text-sm text-muted">
@@ -36,6 +37,6 @@ export function Footer() {
           © {year} {site.name}. Not financial advice. We never publish gambling, betting or loan content.
         </p>
       </div>
-    </footer>
+    </div>
   );
 }

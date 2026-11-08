@@ -106,3 +106,38 @@ Newest last. Each entry: what, why, and how to revisit.
 40. **AlertCTA is UI only** and says alerts launch soon. It doesn't capture anything until Phase 4/6.
 41. **Article JS is at 119.8 KB gzip (budget 120).** React DOM + React Router are ~110 KB of it. Phase 4 must load
     analytics (GA4/PostHog) after idle, outside the preloaded route bundle, and keep new article-page UI tiny.
+
+## 2026-11-08 — Phase 4
+
+42. **The footer is server-rendered HTML** (`lib/layout/footer-html.server.tsx`), shown via `BodyHtml`, and its link
+    data moved to `config/footer.ts` (server only). It's static, so hydrating it only cost bytes.
+43. **Vite's dynamic-import preload helper is off** (`build.modulePreload: false`). React Router already preloads
+    route modules; the helper added 0.6 KB to every page once lazy imports existed.
+44. **Non-critical client code is one lazy chunk** (`lib/client/enhance.ts`), imported after hydration: pageview
+    analytics and arming the exit-intent modal. Components call a ~100-byte `track()` stub that imports the analytics
+    client on first use. The exit-intent modal is built with plain DOM APIs, so it doesn't pull `react-dom/client`
+    into a separate chunk. The article route stays at 119.9 KB gzip.
+45. **PostHog without its SDK.** Events go to PostHog's HTTP capture API (`sendBeacon`), and feature flags come from
+    `/decide`, falling back to `config/flags.ts`. GA4's gtag loads after `requestIdleCallback`. Both are off when
+    their env vars are empty.
+46. **Capture adapters, same pattern as content/market:** Supabase (service role, server only) or in-memory stores;
+    beehiiv or none; Telegram/Slack/Resend or an in-memory outbox; manual invoices; Upstash or memory rate limits.
+    With nothing configured, everything still works locally.
+47. **First capture wins.** Re-subscribing never duplicates a row, never overwrites the original `source`/UTM, and
+    always returns success (no email enumeration). If beehiiv fails the row stays `pending` for a later re-sync.
+48. **Rate limits trust exactly one IP header** (`TRUSTED_IP_HEADER`, default Netlify's
+    `x-nf-client-connection-ip`). `x-forwarded-for` and friends are ignored because clients can forge them.
+    Limits: subscribe 5 / 10 min, booking 3 / hour, per IP.
+49. **E2E inspection endpoint** `/api/test-outbox`: answers only with `E2E_TEST_MODE=1` *and* in-memory stores; it
+    404s whenever a real database is configured. This is how Playwright checks the stored row and notifications.
+50. **Bookings take the price from the CMS package**, never from the form; tampered price fields are ignored. Manual
+    invoice references (`INV-YYYYMMDD-XXXXXX`) are stored as `orders.payment_ref`.
+51. **Media kit:** a generated `public/media-kit.pdf` (`pnpm media-kit`, Playwright print of the partners content).
+    An uploaded PDF on the Sanity "Partners hub settings" document takes precedence.
+52. **AlertCTA captures a newsletter sign-up** with interest `price-alerts` and source `alert-cta:<path>` until real
+    alerts ship in Phase 6, and says so.
+53. **Sticky-footer variant** appears on `/markets` and hubs after scrolling (dismissed for 7 days), not on articles,
+    which already have inline + end-of-article boxes.
+54. **New env vars:** `EMAIL_FROM`, `TEAM_NOTIFY_EMAIL`, `SLACK_WEBHOOK_URL`, `TRUSTED_IP_HEADER`, `E2E_TEST_MODE`.
+55. **Placeholder business numbers:** package prices and audience stats in the fixtures are placeholders, labelled on
+    the page and in the PDF. Set real values in the Studio (`package` docs, "Partners hub settings").

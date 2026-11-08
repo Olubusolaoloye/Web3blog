@@ -136,3 +136,20 @@ export const countryByCodeQuery = defineQuery(`
     "recommendedExchanges": coalesce(recommendedExchanges, [])
   }
 `);
+
+export const packagesQuery = defineQuery(`
+  *[_type == "package" && coalesce(active, true) && defined(code)] | order(coalesce(order, 100) asc){
+    code, name, priceUsd, priceNote, summary, "deliverables": coalesce(deliverables, [])
+  }
+`);
+
+export const partnerSettingsQuery = defineQuery(`
+  *[_id == "partnerSettings"][0]{
+    headline, intro,
+    "audienceStats": coalesce(audienceStats[]{label, value, note}, []),
+    statsUpdatedAt,
+    "countries": coalesce(countries, []),
+    "formats": coalesce(formats[]{name, description}, []),
+    "mediaKitUrl": coalesce(mediaKit.asset->url, "/media-kit.pdf")
+  }
+`);

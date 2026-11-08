@@ -3,7 +3,8 @@
  * Everything user-facing reads `site.name` / `site.tagline` from here.
  */
 const brandName = "Hashline";
-const siteUrl = (import.meta.env.VITE_SITE_URL as string | undefined) || "http://localhost:5173";
+// `import.meta.env` is undefined outside Vite (e.g. node scripts), hence the optional chaining.
+const siteUrl = (import.meta.env?.VITE_SITE_URL as string | undefined) || "http://localhost:5173";
 
 export const site = {
   name: brandName,
@@ -28,42 +29,6 @@ export const site = {
     { label: "Safety", href: "/safety" },
     { label: "Tools", href: "/tools/profit-calculator" },
     { label: "Learn", href: "/learn" },
-  ],
-  footerNav: [
-    {
-      heading: "Read",
-      links: [
-        { label: "News", href: "/news" },
-        { label: "Research", href: "/research" },
-        { label: "Learn", href: "/learn" },
-        { label: "Safety Desk", href: "/safety" },
-      ],
-    },
-    {
-      heading: "Trust",
-      links: [
-        { label: "About", href: "/about" },
-        { label: "Editorial standards", href: "/standards" },
-        { label: "Corrections", href: "/corrections" },
-        { label: "Contact", href: "/contact" },
-      ],
-    },
-    {
-      heading: "Business",
-      links: [
-        { label: "Partners & advertising", href: "/partners" },
-        { label: "Press releases", href: "/press" },
-        { label: "Directory", href: "/directory" },
-      ],
-    },
-    {
-      heading: "Legal",
-      links: [
-        { label: "Privacy", href: "/privacy" },
-        { label: "Terms", href: "/terms" },
-        { label: "Disclaimer", href: "/disclaimer" },
-      ],
-    },
   ],
 } as const;
 

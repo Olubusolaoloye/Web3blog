@@ -150,20 +150,23 @@ describe("NewsletterBox", () => {
     expect(honeypot?.closest("[aria-hidden]")).not.toBeNull();
     expect(within(box).getByRole("link", { name: "privacy policy" })).toHaveAttribute("href", "/privacy");
     expect(box.querySelector("form")).toHaveAttribute("action", "/api/subscribe");
+    expect(within(box).queryByLabelText(/experience/i)).toBeNull(); // nothing more than email + country at first touch
   });
 });
 
 describe("AlertCTA", () => {
-  it("is honest that alerts aren't live yet", async () => {
+  it("captures an email with interest price-alerts and its own source", async () => {
     const { AlertCTA } = await import("~/components/capture/AlertCTA");
-    render(<AlertCTA symbol="BTC" currency="NGN" locale="en-NG" currentPrice={98_000_000} />);
-    expect(screen.getByRole("heading", { name: /Alert me when BTC hits/ })).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: "Telegram" })).toBeInTheDocument();
-    expect(screen.queryByRole("option", { name: "WhatsApp" })).toBeNull(); // behind the whatsappAlerts flag
-    screen.getByRole("spinbutton").focus();
-    (screen.getByRole("spinbutton") as HTMLInputElement).value = "100000000";
-    screen.getByRole("button", { name: "Set alert" }).click();
-    expect(await screen.findByRole("status")).toHaveTextContent(/launching soon/);
+    withRouter(<AlertCTA symbol="BTC" currency="NGN" locale="en-NG" country="ng" currentPrice={98_000_000} />);
+    const section = await screen.findByTestId("alert-cta");
+    expect(within(section).getByRole("heading", { name: /Alert me when BTC hits/ })).toBeInTheDocument();
+    expect(within(section).getByRole("option", { name: "Telegram" })).toBeInTheDocument();
+    expect(within(section).queryByRole("option", { name: "WhatsApp" })).toBeNull(); // behind the whatsappAlerts flag
+    const form = section.querySelector("form") as HTMLFormElement;
+    expect(form).toHaveAttribute("action", "/api/subscribe");
+    expect(form.querySelector('input[name="source"]')).toHaveValue("alert-cta:/");
+    expect(form.querySelector('input[name="interests"]')).toHaveValue("price-alerts");
+    expect(within(section).getByPlaceholderText("you@example.com")).toHaveAttribute("type", "email");
   });
 });
 

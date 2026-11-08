@@ -16,6 +16,7 @@ import { getCountry, getCountryOrDefault } from "~/config/countries";
 import { site } from "~/config/site";
 import { countryCookie, themeCookie } from "~/lib/cookies.server";
 import { detectCountryFromHeaders } from "~/lib/geo";
+import { readUtm, utmCookie, utmFromRequest } from "~/lib/capture/request.server";
 import { parseTheme, type Theme } from "~/lib/theme";
 
 // Headline + body fonts are preloaded. JetBrains Mono (prices) is not: it only styles small numbers, swaps in when
@@ -36,6 +37,12 @@ export async function loader({ request }: Route.LoaderArgs) {
   const country = savedCountry ?? getCountryOrDefault(detectCountryFromHeaders(request.headers)?.code);
   const headers = new Headers();
   if (!savedCountry) headers.append("Set-Cookie", await countryCookie.serialize(country.code));
+
+  // First-touch attribution: remember the campaign that brought the visitor (CLAUDE.md §8).
+  const landingUtm = utmFromRequest(request);
+  if (landingUtm && Object.keys(await readUtm(request)).length === 0) {
+    headers.append("Set-Cookie", await utmCookie.serialize(landingUtm));
+  }
 
   return data({ theme, countryCode: country.code }, { headers });
 }

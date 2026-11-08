@@ -1,0 +1,185 @@
+@import "tailwindcss";
+@import "@fontsource-variable/space-grotesk/wght.css";
+@import "@fontsource-variable/inter/wght.css";
+@import "@fontsource-variable/jetbrains-mono/wght.css";
+
+/*
+ * Design tokens (CLAUDE.md §4). Dark is the brand default.
+ * data-theme on <html> is set server-side from the hl_theme cookie: "dark" | "light" | "system".
+ */
+:root,
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0b1020;
+  --surface: #121a30;
+  --surface-2: #1a2440;
+  --border: #26314f;
+  --text: #f5f3ee;
+  --text-muted: #a7aec2;
+  --signal: #c6f432; /* fills: CTAs, highlights */
+  --signal-ink: #c6f432; /* signal used as text/borders on surfaces */
+  --on-signal: #0b1020; /* text on top of --signal fills */
+  --alert: #ff6b57;
+  --up: #3ddc97;
+  --down: #ff6b57;
+  --warning: #ffc24b;
+  --radius: 12px;
+}
+
+/*
+ * Light tokens, derived from the dark set. Contrast vs --bg/--surface (checked, WCAG AA 4.5:1 for text):
+ * text #0b1020 ≈ 17:1, muted #4a5470 ≈ 7:1, signal-ink #4a6600 ≈ 6.3:1, alert #c2321f ≈ 5.2:1,
+ * up #0b7a4b ≈ 5.3:1, warning #8a5a00 ≈ 5.8:1. --signal stays lime as a fill with dark text on top.
+ */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f7f6f2;
+  --surface: #ffffff;
+  --surface-2: #eef0f5;
+  --border: #d5dae5;
+  --text: #0b1020;
+  --text-muted: #4a5470;
+  --signal: #c6f432;
+  --signal-ink: #4a6600;
+  --on-signal: #0b1020;
+  --alert: #c2321f;
+  --up: #0b7a4b;
+  --down: #c2321f;
+  --warning: #8a5a00;
+}
+
+@media (prefers-color-scheme: light) {
+  :root[data-theme="system"] {
+    color-scheme: light;
+    --bg: #f7f6f2;
+    --surface: #ffffff;
+    --surface-2: #eef0f5;
+    --border: #d5dae5;
+    --text: #0b1020;
+    --text-muted: #4a5470;
+    --signal: #c6f432;
+    --signal-ink: #4a6600;
+    --on-signal: #0b1020;
+    --alert: #c2321f;
+    --up: #0b7a4b;
+    --down: #c2321f;
+    --warning: #8a5a00;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-muted: var(--text-muted);
+  --color-signal: var(--signal);
+  --color-signal-ink: var(--signal-ink);
+  --color-on-signal: var(--on-signal);
+  --color-alert: var(--alert);
+  --color-up: var(--up);
+  --color-down: var(--down);
+  --color-warning: var(--warning);
+  --radius-brand: var(--radius);
+
+  --font-display: "Space Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* 8px spacing scale: Tailwind's base unit is 0.25rem; p-2 = 8px, p-4 = 16px, etc. */
+  --container-content: 1200px;
+  --container-article: 720px;
+}
+
+@layer base {
+  html {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    min-height: 100dvh;
+    background-color: var(--bg);
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  a {
+    text-underline-offset: 3px;
+  }
+  :focus-visible {
+    outline: 2px solid var(--signal-ink);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  ::selection {
+    background: var(--signal);
+    color: var(--on-signal);
+  }
+}
+
+@layer components {
+  .container-content {
+    width: 100%;
+    max-width: var(--container-content);
+    margin-inline: auto;
+    padding-inline: 16px;
+  }
+  .prose-article {
+    max-width: var(--container-article);
+    font-size: 1.0625rem;
+    line-height: 1.7;
+  }
+  .prose-article > * + * {
+    margin-top: 1.25em;
+  }
+  .prose-article h2 {
+    font-size: 1.5rem;
+    line-height: 1.25;
+    margin-top: 2em;
+  }
+  .prose-article h3 {
+    font-size: 1.25rem;
+    margin-top: 1.75em;
+  }
+  .prose-article a {
+    color: var(--signal-ink);
+    text-decoration: underline;
+  }
+  .prose-article ul {
+    list-style: disc;
+    padding-left: 1.25em;
+  }
+  .prose-article ol {
+    list-style: decimal;
+    padding-left: 1.25em;
+  }
+  .prose-article blockquote {
+    border-left: 3px solid var(--border);
+    padding-left: 1em;
+    color: var(--text-muted);
+  }
+  .tabular {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

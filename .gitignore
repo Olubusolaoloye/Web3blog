@@ -1,0 +1,15 @@
+node_modules
+/build
+/.react-router
+.env
+.env.local
+.env.*.local
+studio/dist
+studio/.sanity
+studio/seed/*.ndjson
+/test-results
+/playwright-report
+coverage
+*.log
+.DS_Store
+schema.json

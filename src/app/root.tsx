@@ -11,7 +11,6 @@ import {
 import type { Route } from "./+types/root";
 import interWoff2 from "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url";
 import groteskWoff2 from "@fontsource-variable/space-grotesk/files/space-grotesk-latin-wght-normal.woff2?url";
-import monoWoff2 from "@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2?url";
 import stylesheet from "~/styles/globals.css?url";
 import { getCountry, getCountryOrDefault } from "~/config/countries";
 import { site } from "~/config/site";
@@ -19,10 +18,11 @@ import { countryCookie, themeCookie } from "~/lib/cookies.server";
 import { detectCountryFromHeaders } from "~/lib/geo";
 import { parseTheme, type Theme } from "~/lib/theme";
 
+// Headline + body fonts are preloaded. JetBrains Mono (prices) is not: it only styles small numbers, swaps in when
+// ready, and preloading it delayed LCP on slow 4G in Lighthouse (docs/decisions.md).
 export const links: Route.LinksFunction = () => [
   { rel: "preload", href: groteskWoff2, as: "font", type: "font/woff2", crossOrigin: "anonymous" },
   { rel: "preload", href: interWoff2, as: "font", type: "font/woff2", crossOrigin: "anonymous" },
-  { rel: "preload", href: monoWoff2, as: "font", type: "font/woff2", crossOrigin: "anonymous" },
   { rel: "stylesheet", href: stylesheet },
   { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
 ];

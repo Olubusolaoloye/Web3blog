@@ -516,5 +516,86 @@ export const seedArticles: SeedArticle[] = [
   },
 ];
 
-export const seedDocuments = [...seedAuthors, ...seedCountries, ...seedCategories, ...seedTags, ...seedArticles];
+// ---------------------------------------------------------------------------------------------
+// Sponsored posts (rendered only under /press) and corrections
+// ---------------------------------------------------------------------------------------------
+interface SeedSponsored extends Omit<SeedArticle, "_type" | "isBreaking"> {
+  _type: "sponsoredPost";
+  kind: "sponsored" | "pressRelease";
+  sponsorName: string;
+  disclosureText: string;
+  noindex: boolean;
+  linksRel: "sponsored nofollow";
+}
+
+export const seedSponsoredPosts: SeedSponsored[] = [
+  {
+    _id: "sponsoredPost.example-wallet-naira-onramp",
+    _type: "sponsoredPost",
+    kind: "sponsored",
+    sponsorName: "Example Wallet Co.",
+    disclosureText: "This post was paid for by Example Wallet Co. Our newsroom did not write or edit it. Not financial advice.",
+    noindex: false,
+    linksRel: "sponsored nofollow",
+    title: "Example Wallet adds a naira on-ramp for first-time buyers",
+    slug: slug("example-wallet-naira-onramp"),
+    type: "analysis",
+    bottomLine: ["Example Wallet now lets users in Nigeria buy USDT with a bank transfer.", "Fees and limits are listed on the sponsor's website."],
+    body: pt(
+      "sp1",
+      "Example Wallet Co. says its new on-ramp lets users fund a self-custody wallet with naira in a few steps.",
+      { link: { before: "Details of fees and limits are on ", text: "the sponsor's website", href: "https://example.com/naira", after: "." } },
+    ),
+    sources: src([["Example Wallet Co. announcement", "https://example.com/news"]]),
+    authors: refs(["author.amara-okafor"]),
+    countries: refs(["country.ng"]),
+    coins: ["tether"],
+    category: ref("category.markets"),
+    tags: [],
+    heroImage: hero(6, "Sponsor illustration of stacked coins"),
+    publishedAt: "2026-11-07T16:00:00Z",
+  },
+  {
+    _id: "sponsoredPost.example-chain-ghana-hackathon",
+    _type: "sponsoredPost",
+    kind: "pressRelease",
+    sponsorName: "Example Chain Foundation",
+    disclosureText: "Press release supplied by Example Chain Foundation and published unedited. Not financial advice.",
+    noindex: true,
+    linksRel: "sponsored nofollow",
+    title: "Example Chain Foundation announces a developer hackathon in Accra",
+    slug: slug("example-chain-ghana-hackathon"),
+    type: "news",
+    bottomLine: ["A three-day developer hackathon is planned for Accra.", "Registration details are on the organiser's site."],
+    body: pt("sp2", "Example Chain Foundation will host a developer hackathon in Accra, with workshops for students and early-stage teams."),
+    sources: src([["Example Chain Foundation", "https://example.com/hackathon"]]),
+    authors: refs(["author.wanjiru-kamau"]),
+    countries: refs(["country.gh"]),
+    coins: [],
+    category: ref("category.markets"),
+    tags: [],
+    heroImage: hero(4, "Sponsor illustration of layered shapes"),
+    publishedAt: "2026-11-06T12:00:00Z",
+  },
+];
+
+export const seedCorrections = [
+  {
+    _id: "correction.ethereum-upgrade-fees",
+    _type: "correction",
+    article: ref("article.ethereum-upgrade-everyday-users"),
+    date: "2026-11-05",
+    note: "An earlier version said every Ethereum upgrade lowers fees on the main network. Recent upgrades mainly reduced fees on layer-2 networks; the article has been corrected.",
+  },
+];
+
+export const seedDocuments = [
+  ...seedAuthors,
+  ...seedCountries,
+  ...seedCategories,
+  ...seedTags,
+  ...seedArticles,
+  ...seedSponsoredPosts,
+  ...seedCorrections,
+];
 export type SeedDocument = (typeof seedDocuments)[number];

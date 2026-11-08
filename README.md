@@ -18,7 +18,10 @@ pnpm --filter studio dev        # Sanity Studio on http://localhost:3333 (needs 
 1. Create a project at sanity.io/manage and put its id in `.env.local` (`VITE_SANITY_PROJECT_ID`) and `studio/.env` (`SANITY_STUDIO_PROJECT_ID`).
 2. `pnpm --filter studio seed` exports the seed fixtures to NDJSON and imports them, uploading the placeholder images.
 3. `pnpm sanity:typegen` generates GROQ result types into `src/lib/sanity/sanity.types.ts`.
-4. Revalidation webhook (Phase 2): GROQ webhook on publish → `POST /api/revalidate` with `SANITY_REVALIDATE_SECRET`.
+4. Revalidation webhook: in sanity.io/manage → API → Webhooks, add a GROQ webhook to `<site>/api/revalidate`
+   (create/update/delete, filter `_type in ["article","sponsoredPost","author"]`, projection
+   `{_type, "slug": slug.current}`, secret = `SANITY_REVALIDATE_SECRET`). Set `NETLIFY_SITE_ID` and
+   `NETLIFY_PURGE_API_TOKEN` so it purges the CDN.
 
 ### Connect Supabase
 ```bash
@@ -30,7 +33,9 @@ pnpm db:types                   # regenerates src/lib/supabase/database.types.ts
 ## Checks
 ```bash
 pnpm lint && pnpm typecheck && pnpm test   # before every commit
-pnpm test:e2e                              # builds, serves, runs Playwright (mobile profile)
+pnpm test:e2e                              # builds, serves, runs Playwright (mobile profile) incl. the JS budget
+pnpm build && pnpm lhci                    # Lighthouse CI: mobile performance ≥ 90 on key pages
 ```
+Without Chrome installed, point Lighthouse at another Chromium: `CHROME_PATH=/path/to/chrome pnpm lhci`.
 `tests/db` applies the migrations to a temporary database on a local Postgres (`PG_TEST_URL`, default
 `postgres://postgres:postgres@localhost:5432/postgres`) and checks RLS. It skips when no server is reachable.

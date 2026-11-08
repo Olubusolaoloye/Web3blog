@@ -7,6 +7,8 @@ import { AuthorCard } from "~/components/article/AuthorCard";
 import { BottomLine } from "~/components/article/BottomLine";
 import { PortableBody } from "~/components/article/PortableBody";
 import { SafetyBadge } from "~/components/article/SafetyBadge";
+import { ShareButtons, whatsappShareText } from "~/components/article/ShareButtons";
+import { NewsletterBox } from "~/components/capture/NewsletterBox";
 import { SourceList } from "~/components/article/SourceList";
 import { SponsoredLabel } from "~/components/article/SponsoredLabel";
 import { PriceChip } from "~/components/market/PriceChip";
@@ -115,5 +117,32 @@ describe("PortableBody", () => {
     expect(screen.getByTestId("price-chip")).toBeInTheDocument();
     expect(screen.getByText("Careful")).toBeInTheDocument();
     expect(screen.getByText("Medium risk").closest("a")).toHaveAttribute("href", "/safety/scanner?chain=base&address=0xabc");
+  });
+});
+
+describe("ShareButtons", () => {
+  it("puts WhatsApp first and uses the Bottom Line as share text", async () => {
+    withRouter(<ShareButtons url="https://site.test/news/a" title="Title" bottomLine={["One", "Two"]} />);
+    const links = within(await screen.findByTestId("share-buttons")).getAllByRole("link");
+    expect(links.map((l) => l.textContent)).toEqual(["WhatsApp", "X", "Telegram"]);
+    const text = decodeURIComponent(links[0]!.getAttribute("href")!.split("text=")[1]!);
+    expect(text).toBe(whatsappShareText("Title", ["One", "Two"], "https://site.test/news/a"));
+    expect(text).toContain("• One\n• Two");
+    expect(screen.getByRole("button", { name: "Copy link" })).toBeInTheDocument();
+  });
+});
+
+describe("NewsletterBox", () => {
+  it("asks for email + country only, records the source and links consent to privacy", async () => {
+    withRouter(<NewsletterBox variant="end-of-article" country="ke" />);
+    const box = await screen.findByTestId("newsletter-end-of-article");
+    expect(within(box).getByLabelText("Email address")).toHaveAttribute("type", "email");
+    expect(within(box).getByLabelText("Country")).toHaveValue("ke");
+    expect(box.querySelector('input[name="source"]')).toHaveValue("end-of-article:/");
+    const honeypot = box.querySelector('input[name="website"]');
+    expect(honeypot).toHaveAttribute("tabindex", "-1");
+    expect(honeypot?.closest("[aria-hidden]")).not.toBeNull();
+    expect(within(box).getByRole("link", { name: "privacy policy" })).toHaveAttribute("href", "/privacy");
+    expect(box.querySelector("form")).toHaveAttribute("action", "/api/subscribe");
   });
 });

@@ -36,6 +36,8 @@ export type BodyBlock = PortableTextBlock | (TypedObject & Record<string, unknow
 
 export interface ArticleSummary {
   id: string;
+  /** Always "article" for editorial content. Used by tests and JSON-LD to keep sponsored content out. */
+  docType: "article";
   slug: string;
   title: string;
   type: ArticleType;
@@ -45,6 +47,7 @@ export interface ArticleSummary {
   updatedAt?: string;
   isBreaking: boolean;
   category?: Taxon;
+  authorNames: string[];
 }
 
 export interface FaqItem {
@@ -64,18 +67,69 @@ export interface Article extends ArticleSummary {
   faq?: FaqItem[];
 }
 
+export interface AuthorProfile extends AuthorSummary {
+  socials: { x?: string; linkedin?: string; telegram?: string };
+}
+
+export interface SponsoredPost extends Omit<Article, "isBreaking" | "docType"> {
+  docType: "sponsoredPost";
+  kind: "sponsored" | "pressRelease";
+  sponsorName: string;
+  disclosureText: string;
+  noindex: boolean;
+}
+
+export type SponsoredSummary = Pick<
+  SponsoredPost,
+  "id" | "docType" | "slug" | "title" | "bottomLine" | "heroImage" | "publishedAt" | "updatedAt" | "kind" | "sponsorName" | "noindex"
+>;
+
+export interface Correction {
+  id: string;
+  date: string;
+  note: string;
+  article: { slug: string; title: string };
+}
+
 export interface ListArticlesOptions {
   limit?: number;
+  offset?: number;
   type?: ArticleType;
+  /** Category slug */
+  category?: string;
+  /** Author slug */
+  author?: string;
+  /** Country code (lower-case ISO-2) */
+  country?: string;
+  /** Case-insensitive text search over title and Bottom Line */
+  query?: string;
+  /** ISO date-time: only articles published at or after this instant */
+  since?: string;
+  excludeSlug?: string;
+}
+
+export interface Paged<T> {
+  items: T[];
+  total: number;
 }
 
 /**
  * Everything the app reads from the CMS goes through this interface.
  * Implementations: Sanity (GROQ) and local fixtures (no credentials needed).
- * Editorial lists only ever return `article` documents, never `sponsoredPost` (CLAUDE.md §7.11).
+ *
+ * Editorial methods (`listArticles`, `getRelatedArticles`, `getArticle`) only ever return `article` documents,
+ * never `sponsoredPost` (CLAUDE.md §7.11, rule 2). Sponsored content has its own methods and is rendered only
+ * under /press.
  */
 export interface ContentSource {
   readonly name: "sanity" | "fixtures";
   getArticle(slug: string): Promise<Article | null>;
-  listArticles(options?: ListArticlesOptions): Promise<ArticleSummary[]>;
+  listArticles(options?: ListArticlesOptions): Promise<Paged<ArticleSummary>>;
+  getRelatedArticles(article: Article, limit?: number): Promise<ArticleSummary[]>;
+  listCategories(): Promise<Taxon[]>;
+  getAuthor(slug: string): Promise<AuthorProfile | null>;
+  listAuthors(): Promise<AuthorProfile[]>;
+  getSponsoredPost(slug: string): Promise<SponsoredPost | null>;
+  listSponsoredPosts(options?: { limit?: number; includeNoindex?: boolean }): Promise<SponsoredSummary[]>;
+  listCorrections(): Promise<Correction[]>;
 }

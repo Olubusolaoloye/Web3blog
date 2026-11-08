@@ -13,6 +13,8 @@ export interface BuildMetaInput {
   rawTitle?: boolean;
   publishedTime?: string;
   modifiedTime?: string;
+  /** JSON-LD document(s) rendered as <script type="application/ld+json"> in the head. */
+  jsonLd?: Record<string, unknown>;
 }
 
 export function absoluteUrl(pathOrUrl: string): string {
@@ -20,7 +22,7 @@ export function absoluteUrl(pathOrUrl: string): string {
   return `${site.url}${pathOrUrl.startsWith("/") ? "" : "/"}${pathOrUrl}`;
 }
 
-/** Every route's `meta` export goes through this (CLAUDE.md §9). Full OG image routes arrive in Phase 2. */
+/** Every route's `meta` export goes through this (CLAUDE.md §9). */
 export function buildMeta(input: BuildMetaInput): MetaDescriptor[] {
   const title = input.rawTitle ? input.title : site.titleTemplate(input.title);
   const description = input.description ?? site.description;
@@ -42,11 +44,15 @@ export function buildMeta(input: BuildMetaInput): MetaDescriptor[] {
       content: input.noindex ? "noindex, nofollow" : "index, follow, max-image-preview:large",
     },
   ];
-  if (input.image) {
-    const img = absoluteUrl(input.image);
-    tags.push({ property: "og:image", content: img }, { name: "twitter:image", content: img });
-  }
+  const img = absoluteUrl(input.image ?? "/og/page/default.png");
+  tags.push(
+    { property: "og:image", content: img },
+    { property: "og:image:width", content: "1200" },
+    { property: "og:image:height", content: "630" },
+    { name: "twitter:image", content: img },
+  );
   if (input.publishedTime) tags.push({ property: "article:published_time", content: input.publishedTime });
   if (input.modifiedTime) tags.push({ property: "article:modified_time", content: input.modifiedTime });
+  if (input.jsonLd) tags.push({ "script:ld+json": input.jsonLd });
   return tags;
 }

@@ -30,8 +30,8 @@ export function Header({ country, theme }: Props) {
                 to={item.href === "/local/ng" ? `/local/${country.code}` : item.href}
                 className={({ isActive }) =>
                   cn(
-                    "block whitespace-nowrap rounded-full px-3 py-1.5 font-medium text-muted hover:text-text",
-                    isActive && "bg-surface-2 text-text",
+                    "block whitespace-nowrap rounded-full px-3 py-1.5 font-medium hover:text-text",
+                    isActive ? "bg-surface-2 text-text" : "text-muted",
                   )
                 }
               >

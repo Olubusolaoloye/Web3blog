@@ -33,6 +33,8 @@ describe("seed content", () => {
     const text = lines.join("\n");
     expect(text).not.toContain("_placeholder");
     expect(text).toContain('"_sanityAsset":"image@file://');
+    expect(text).toContain('"_type":"sponsoredPost"');
+    expect(text).toContain('"_type":"correction"');
     expect(docs.every((d) => typeof d._id === "string" && typeof d._type === "string")).toBe(true);
   });
 });
@@ -70,18 +72,51 @@ describe("fixture content source", () => {
 
   it("lists newest first and filters by type", async () => {
     const list = await fixtureSource.listArticles({ limit: 5 });
-    expect(list).toHaveLength(5);
-    const dates = list.map((a) => a.publishedAt);
+    expect(list.items).toHaveLength(5);
+    expect(list.total).toBe(10);
+    const dates = list.items.map((a) => a.publishedAt);
     expect([...dates].sort().reverse()).toEqual(dates);
     const safety = await fixtureSource.listArticles({ type: "safety" });
-    expect(safety.every((a) => a.type === "safety")).toBe(true);
-    expect(safety).toHaveLength(2);
+    expect(safety.items.every((a) => a.type === "safety")).toBe(true);
+    expect(safety.total).toBe(2);
+  });
+
+  it("filters by category, author, country, query and paginates", async () => {
+    expect((await fixtureSource.listArticles({ category: "regulation" })).total).toBe(3);
+    expect((await fixtureSource.listArticles({ author: "thabo-nkosi" })).total).toBe(4);
+    expect((await fixtureSource.listArticles({ country: "gh" })).items.map((a) => a.slug)).toContain("ghana-digital-asset-approach");
+    expect((await fixtureSource.listArticles({ query: "SEED PHRASE" })).items.map((a) => a.slug)).toContain("what-is-a-seed-phrase");
+    const page2 = await fixtureSource.listArticles({ limit: 4, offset: 8 });
+    expect(page2.items).toHaveLength(2);
+    expect(page2.total).toBe(10);
+  });
+
+  it("finds related stories by shared tags, category and country", async () => {
+    const a = await fixtureSource.getArticle("fake-airdrop-sites-draining-wallets");
+    const related = await fixtureSource.getRelatedArticles(a!, 3);
+    expect(related[0]?.slug).toBe("telegram-investment-manager-scam");
+    expect(related).toHaveLength(3);
+    // Articles with few overlaps are topped up with the latest stories.
+    const lonely = await fixtureSource.getArticle("fsca-licence-check-south-africa");
+    const filled = await fixtureSource.getRelatedArticles(lonely!, 3);
+    expect(filled).toHaveLength(3);
+    expect(new Set(filled.map((f) => f.slug)).size).toBe(3);
+  });
+
+  it("lists authors, categories, corrections and sponsored posts", async () => {
+    expect(await fixtureSource.listAuthors()).toHaveLength(3);
+    expect((await fixtureSource.listCategories()).map((c) => c.slug)).toContain("safety");
+    const [correction] = await fixtureSource.listCorrections();
+    expect(correction?.article.slug).toBe("ethereum-upgrade-everyday-users");
+    expect(await fixtureSource.listSponsoredPosts()).toHaveLength(2);
+    expect(await fixtureSource.listSponsoredPosts({ includeNoindex: false })).toHaveLength(1);
+    expect((await fixtureSource.getSponsoredPost("example-chain-ghana-hackathon"))?.noindex).toBe(true);
   });
 });
 
 describe("GROQ editorial queries", () => {
   it("select only article documents, never sponsoredPost", () => {
-    for (const q of [articleListQuery, articleBySlugQuery]) {
+    for (const q of [articleListQuery, articleBySlugQuery] as string[]) {
       expect(q).toContain('_type == "article"');
       expect(q).not.toContain("sponsoredPost");
     }

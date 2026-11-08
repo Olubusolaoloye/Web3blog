@@ -1,15 +1,90 @@
 import { getSanityClient } from "~/lib/sanity/client.server";
-import { articleBySlugQuery, articleListQuery } from "~/lib/sanity/queries";
-import type { Article, ArticleSummary, ContentSource, ListArticlesOptions } from "./types";
+import {
+  articleBySlugQuery,
+  articleListQuery,
+  authorBySlugQuery,
+  authorsQuery,
+  autoRelatedQuery,
+  categoriesQuery,
+  correctionsQuery,
+  pickedRelatedQuery,
+  sponsoredBySlugQuery,
+  sponsoredListQuery,
+} from "~/lib/sanity/queries";
+import type {
+  Article,
+  ArticleSummary,
+  AuthorProfile,
+  ContentSource,
+  Correction,
+  Paged,
+  SponsoredPost,
+  SponsoredSummary,
+  Taxon,
+} from "./types";
+
+const fetch = <T>(query: string, params: Record<string, unknown> = {}) => getSanityClient().fetch<T>(query, params);
+const lowerCountries = <T extends { countries: string[] }>(doc: T): T => ({
+  ...doc,
+  countries: doc.countries.map((c) => c.toLowerCase()),
+});
 
 export const sanitySource: ContentSource = {
   name: "sanity",
+
   async getArticle(slug) {
-    const article = await getSanityClient().fetch<Article | null>(articleBySlugQuery, { slug });
-    if (!article) return null;
-    return { ...article, countries: article.countries.map((c) => c.toLowerCase()) };
+    const article = await fetch<Article | null>(articleBySlugQuery, { slug });
+    return article ? lowerCountries(article) : null;
   },
-  async listArticles({ limit = 20, type }: ListArticlesOptions = {}) {
-    return getSanityClient().fetch<ArticleSummary[]>(articleListQuery, { limit, type: type ?? null });
+
+  async listArticles(o = {}) {
+    const limit = o.limit ?? 20;
+    const offset = o.offset ?? 0;
+    return fetch<Paged<ArticleSummary>>(articleListQuery, {
+      type: o.type ?? null,
+      category: o.category ?? null,
+      author: o.author ?? null,
+      country: o.country ?? null,
+      since: o.since ?? null,
+      exclude: o.excludeSlug ?? null,
+      q: o.query ? `${o.query}*` : null,
+      offset,
+      end: offset + limit,
+    });
   },
+
+  async getRelatedArticles(article, limit = 3) {
+    const picked = (await fetch<ArticleSummary[] | null>(pickedRelatedQuery, { slug: article.slug })) ?? [];
+    if (picked.length >= limit) return picked.slice(0, limit);
+    const auto = await fetch<ArticleSummary[]>(autoRelatedQuery, {
+      slug: article.slug,
+      category: article.category?.slug ?? null,
+      tags: article.tags.map((t) => t.slug),
+      countries: article.countries.map((c) => c.toUpperCase()),
+      limit: limit + picked.length,
+    });
+    const seen = new Set(picked.map((p) => p.slug));
+    const combined = [...picked, ...auto.filter((a) => !seen.has(a.slug))];
+    if (combined.length < limit) {
+      // Top up with the latest stories so the module is never half-empty.
+      const latest = await sanitySource.listArticles({ limit: limit + combined.length + 1, excludeSlug: article.slug });
+      const have = new Set(combined.map((a) => a.slug));
+      combined.push(...latest.items.filter((a) => !have.has(a.slug)));
+    }
+    return combined.slice(0, limit);
+  },
+
+  listCategories: () => fetch<Taxon[]>(categoriesQuery),
+  getAuthor: (slug) => fetch<AuthorProfile | null>(authorBySlugQuery, { slug }),
+  listAuthors: () => fetch<AuthorProfile[]>(authorsQuery),
+
+  async getSponsoredPost(slug) {
+    const post = await fetch<SponsoredPost | null>(sponsoredBySlugQuery, { slug });
+    return post ? lowerCountries(post) : null;
+  },
+
+  listSponsoredPosts: ({ limit = 20, includeNoindex = true } = {}) =>
+    fetch<SponsoredSummary[]>(sponsoredListQuery, { limit, includeNoindex }),
+
+  listCorrections: () => fetch<Correction[]>(correctionsQuery),
 };

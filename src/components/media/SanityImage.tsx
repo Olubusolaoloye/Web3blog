@@ -37,7 +37,8 @@ export function SanityImage({ image, priority = false, sizes = "100vw", classNam
       loading={priority ? "eager" : "lazy"}
       fetchPriority={priority ? "high" : undefined}
       decoding={priority ? "sync" : "async"}
-      className={cn("h-auto w-full bg-surface-2 object-cover", className)}
+      // Callers that set a height (h-*, size-*) replace the default h-auto; no class merging on the client.
+      className={cn("w-full bg-surface-2 object-cover", !/(^|\s)(h|size)-/.test(className ?? "") && "h-auto", className)}
     />
   );
 }

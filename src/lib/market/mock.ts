@@ -38,3 +38,28 @@ export function getMockQuotes(currency: string, ids?: readonly string[]): LocalQ
   const list = ids ? MOCK_QUOTES.filter((q) => ids.includes(q.id)) : MOCK_QUOTES;
   return list.map((q) => ({ ...q, currency, price: convertUsd(q.priceUsd, currency) }));
 }
+
+export interface P2pRate {
+  countryCode: string;
+  asset: string;
+  fiat: string;
+  buy: number;
+  sell: number;
+  source: string;
+  capturedAt: string;
+}
+
+/** Mocked USDT P2P rates per launch country. Phase 3 reads `p2p_rates` (manual entry from admin first). */
+export function getMockP2pRate(countryCode: string, currency: string): P2pRate | undefined {
+  const fx = MOCK_FX[currency];
+  if (fx === undefined) return undefined;
+  return {
+    countryCode,
+    asset: "USDT",
+    fiat: currency,
+    buy: fx * 1.012,
+    sell: fx * 0.998,
+    source: "Sample data",
+    capturedAt: "2026-11-08T08:00:00Z",
+  };
+}

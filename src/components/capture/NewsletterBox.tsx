@@ -49,7 +49,7 @@ export function NewsletterBox({ variant, country, heading, blurb }: Props) {
 
       {result?.ok ? (
         <div role="status" className="mt-4 space-y-2">
-          <p className="font-semibold text-signal-ink">You're on the list. Check your inbox to confirm.</p>
+          <p className="font-semibold text-signal-ink">You're on the list. Look out for our welcome email.</p>
           <p className="text-sm">
             Want alerts faster? Join us on{" "}
             <a className="underline" href={site.socials.whatsapp} rel="noopener">WhatsApp</a> or{" "}

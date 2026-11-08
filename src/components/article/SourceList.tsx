@@ -21,7 +21,7 @@ export function SourceList({ sources, sponsored = false }: Props) {
             <a href={s.url} rel={rel} target="_blank" className="text-text underline hover:text-signal-ink">
               {s.label}
             </a>
-            <span className="ml-2 break-all">{new URL(s.url).hostname.replace(/^www\./, "")}</span>
+            <span className="ml-2 inline-block break-words">{new URL(s.url).hostname.replace(/^www\./, "")}</span>
           </li>
         ))}
       </ol>

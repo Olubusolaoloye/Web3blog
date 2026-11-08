@@ -1,4 +1,5 @@
 import { getSanityClient } from "~/lib/sanity/client.server";
+import { decorateImages } from "~/lib/sanity/image.server";
 import {
   articleBySlugQuery,
   articleListQuery,
@@ -7,6 +8,7 @@ import {
   autoRelatedQuery,
   categoriesQuery,
   correctionsQuery,
+  countryByCodeQuery,
   pickedRelatedQuery,
   sponsoredBySlugQuery,
   sponsoredListQuery,
@@ -17,13 +19,16 @@ import type {
   AuthorProfile,
   ContentSource,
   Correction,
+  CountryDoc,
   Paged,
   SponsoredPost,
   SponsoredSummary,
   Taxon,
 } from "./types";
 
-const fetch = <T>(query: string, params: Record<string, unknown> = {}) => getSanityClient().fetch<T>(query, params);
+// Every result passes through decorateImages so image URLs and srcsets are built here, on the server.
+const fetch = async <T>(query: string, params: Record<string, unknown> = {}) =>
+  decorateImages(await getSanityClient().fetch<T>(query, params));
 const lowerCountries = <T extends { countries: string[] }>(doc: T): T => ({
   ...doc,
   countries: doc.countries.map((c) => c.toLowerCase()),
@@ -42,6 +47,7 @@ export const sanitySource: ContentSource = {
     const offset = o.offset ?? 0;
     return fetch<Paged<ArticleSummary>>(articleListQuery, {
       type: o.type ?? null,
+      coin: o.coin ?? null,
       category: o.category ?? null,
       author: o.author ?? null,
       country: o.country ?? null,
@@ -87,4 +93,5 @@ export const sanitySource: ContentSource = {
     fetch<SponsoredSummary[]>(sponsoredListQuery, { limit, includeNoindex }),
 
   listCorrections: () => fetch<Correction[]>(correctionsQuery),
+  getCountry: (code) => fetch<CountryDoc | null>(countryByCodeQuery, { code }),
 };

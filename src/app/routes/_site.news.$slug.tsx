@@ -18,7 +18,7 @@ import { splitBody } from "~/lib/content/split";
 import type { Article } from "~/lib/content/types";
 import { resolveCountry } from "~/lib/country.server";
 import { formatDateTime } from "~/lib/dates";
-import { getMockQuotes } from "~/lib/market/mock";
+import { safeQuotes } from "~/lib/market/service.server";
 import { breadcrumbJsonLd, faqJsonLd, graph, newsArticleJsonLd } from "~/lib/seo/jsonld";
 import { absoluteUrl, buildMeta } from "~/lib/seo/meta";
 
@@ -44,7 +44,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     return b._type === "priceChip" && typeof coinId === "string" ? [coinId] : [];
   });
   const coinIds = [...new Set([...article.coins, ...bodyCoins])];
-  const quotes = Object.fromEntries(getMockQuotes(country.currency, coinIds).map((q) => [q.id, q]));
+  const quotes = Object.fromEntries((await safeQuotes(country.currency, coinIds)).map((q) => [q.id, q]));
 
   const [bodyStart, bodyEnd] = splitBody(article.body);
   const opts = { quotes, locale: country.locale };

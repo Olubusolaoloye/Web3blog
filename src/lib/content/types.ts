@@ -10,6 +10,8 @@ export interface ImageData {
   height: number;
   /** Sanity asset id (image-<hash>-<w>x<h>-<ext>) when the image lives on the Sanity CDN. */
   assetRef?: string;
+  /** Responsive CDN srcset, built on the server (lib/sanity/image.server.ts). */
+  srcSet?: string;
 }
 
 export interface Source {
@@ -91,8 +93,27 @@ export interface Correction {
   article: { slug: string; title: string };
 }
 
+/** Country document from the CMS (CLAUDE.md §5). Hubs and converter pages render from this + config only. */
+export interface CountryDoc {
+  /** Lower-case ISO-2 */
+  code: string;
+  name: string;
+  currency: string;
+  flag?: string;
+  hubIntro?: string;
+  regulationStatus: BodyBlock[];
+  regulationUpdatedAt?: string;
+  taxGuide: BodyBlock[];
+  /** Short local "how to buy" context. Converter pages 404 without it (no thin pages, §7.3). */
+  howToBuy: BodyBlock[];
+  /** Directory entry slugs (Supabase). Only verified/featured entries are shown. */
+  recommendedExchanges: string[];
+}
+
 export interface ListArticlesOptions {
   limit?: number;
+  /** CoinGecko id in the article's `coins` */
+  coin?: string;
   offset?: number;
   type?: ArticleType;
   /** Category slug */
@@ -132,4 +153,5 @@ export interface ContentSource {
   getSponsoredPost(slug: string): Promise<SponsoredPost | null>;
   listSponsoredPosts(options?: { limit?: number; includeNoindex?: boolean }): Promise<SponsoredSummary[]>;
   listCorrections(): Promise<Correction[]>;
+  getCountry(code: string): Promise<CountryDoc | null>;
 }

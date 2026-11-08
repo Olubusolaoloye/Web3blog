@@ -5,10 +5,13 @@
 export function formatPrice(value: number, currency: string, locale: string): string {
   const abs = Math.abs(value);
   if (abs >= 1_000_000) {
+    // minimumFractionDigits must be explicit: Node's ICU and Chrome's disagree on the default for compact
+    // currency ("₦2.0M" vs "₦2M"), which caused hydration mismatches.
     return new Intl.NumberFormat(locale, {
       style: "currency",
       currency,
       notation: "compact",
+      minimumFractionDigits: 0,
       maximumFractionDigits: 1,
     }).format(value);
   }

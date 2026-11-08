@@ -54,6 +54,7 @@ const bodyFields = /* groq */ `
 const articleFilter = /* groq */ `
   _type == "article" && defined(slug.current)
   && ($type == null || type == $type)
+  && ($coin == null || $coin in coins)
   && ($category == null || category->slug.current == $category)
   && ($author == null || $author in authors[]->slug.current)
   && ($country == null || upper($country) in countries[]->code)
@@ -122,5 +123,16 @@ export const sponsoredListQuery = defineQuery(`
 export const correctionsQuery = defineQuery(`
   *[_type == "correction" && defined(article->slug.current)] | order(date desc){
     "id": _id, date, note, "article": article->{ "slug": slug.current, title }
+  }
+`);
+
+export const countryByCodeQuery = defineQuery(`
+  *[_type == "country" && code == upper($code)][0]{
+    "code": lower(code), name, currency, flag, hubIntro,
+    "regulationStatus": coalesce(regulationStatus, []),
+    regulationUpdatedAt,
+    "taxGuide": coalesce(taxGuide, []),
+    "howToBuy": coalesce(howToBuy, []),
+    "recommendedExchanges": coalesce(recommendedExchanges, [])
   }
 `);

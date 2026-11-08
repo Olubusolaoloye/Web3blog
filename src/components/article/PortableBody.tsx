@@ -30,7 +30,8 @@ export function PortableBody({ value, quotes, locale, sponsored = false }: Props
         const q = v.coinId ? quotes[v.coinId] : undefined;
         return q ? (
           <p>
-            <PriceChip quote={q} locale={locale} />
+            {/* Body HTML is rendered once on the server, so these chips don't live-refresh (decision 15). */}
+            <PriceChip quote={q} locale={locale} live={false} />
           </p>
         ) : null;
       },

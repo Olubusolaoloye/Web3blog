@@ -1,6 +1,6 @@
 /**
  * Lighthouse CI (CLAUDE.md §9 / rule 7): mobile performance ≥ 90 on key pages.
- * Run `pnpm build && pnpm lhci`. /markets joins the URL list in Phase 3 when the page exists.
+ * Run `pnpm build && pnpm lhci`.
  * CHROME_PATH can point at a local Chromium (e.g. Playwright's) when Chrome isn't installed.
  */
 module.exports = {
@@ -8,7 +8,12 @@ module.exports = {
     collect: {
       startServerCommand: "PORT=3300 pnpm start",
       startServerReadyPattern: "localhost:3300",
-      url: ["http://localhost:3300/", "http://localhost:3300/news/bitcoin-dollar-naira-buyers", "http://localhost:3300/news"],
+      url: [
+        "http://localhost:3300/",
+        "http://localhost:3300/news/bitcoin-dollar-naira-buyers",
+        "http://localhost:3300/news",
+        "http://localhost:3300/markets",
+      ],
       numberOfRuns: 3,
       settings: {
         // Default Lighthouse mobile profile: Moto G-class device, simulated slow 4G.

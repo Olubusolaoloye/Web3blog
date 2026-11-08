@@ -46,11 +46,11 @@ export function newsSitemap(entries: readonly NewsEntry[]): string {
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">\n${body}\n</urlset>\n`;
 }
 
-/** Child sitemaps listed in the index. Coins, converters, local hubs, directory and research join in later phases. */
-export const SITEMAP_SECTIONS = ["articles", "pages"] as const;
+/** Child sitemaps listed in the index. Directory and research join in Phase 7. */
+export const SITEMAP_SECTIONS = ["articles", "pages", "coins", "converters", "local"] as const;
 export type SitemapSection = (typeof SITEMAP_SECTIONS)[number];
 
-export const STATIC_PAGES = ["/", "/news", "/press", "/about", "/standards", "/corrections", "/contact", "/privacy", "/terms", "/disclaimer"];
+export const STATIC_PAGES = ["/", "/news", "/markets", "/press", "/about", "/standards", "/corrections", "/contact", "/privacy", "/terms", "/disclaimer"];
 
 export const NEWS_SITEMAP_WINDOW_MS = 2 * 24 * 60 * 60 * 1000;
 

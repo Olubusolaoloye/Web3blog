@@ -40,6 +40,9 @@ export async function loader({ request }: Route.LoaderArgs) {
   return data({ theme, countryCode: country.code }, { headers });
 }
 
+/** Passes the first-visit Set-Cookie down so child `headers` exports can see it (and avoid CDN caching it). */
+export const headers: Route.HeadersFunction = ({ loaderHeaders }) => loaderHeaders;
+
 export function Layout({ children }: { children: React.ReactNode }) {
   const root = useRouteLoaderData<typeof loader>("root");
   const theme: Theme = root?.theme ?? "system";

@@ -23,6 +23,11 @@ pnpm --filter studio dev        # Sanity Studio on http://localhost:3333 (needs 
    `{_type, "slug": slug.current}`, secret = `SANITY_REVALIDATE_SECRET`). Set `NETLIFY_SITE_ID` and
    `NETLIFY_PURGE_API_TOKEN` so it purges the CDN.
 
+### Market data
+Set `COINGECKO_API_KEY` (demo or pro plan, `COINGECKO_API_TIER`) for live prices; without it the site shows
+labelled sample data. FX comes from open.er-api.com (or `FX_API_KEY`). Set `UPSTASH_REDIS_REST_URL` and
+`UPSTASH_REDIS_REST_TOKEN` to share the market cache between server instances. P2P rates are rows in `p2p_rates`.
+
 ### Connect Supabase
 ```bash
 supabase link --project-ref <ref>

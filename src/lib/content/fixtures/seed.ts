@@ -99,7 +99,8 @@ export const seedCountries = [
     ),
     regulationUpdatedAt: "2026-10-01",
     taxGuide: pt("ngt", "Gains on digital assets may be taxable. Keep records of every buy, sell and swap, and speak to a tax adviser for your situation."),
-    recommendedExchanges: [],
+    howToBuy: pt("ngb", "Most people buy USDT or bitcoin with naira through a P2P marketplace or an SEC-registered exchange, paying by bank transfer. Compare the P2P rate with the official rate, trade only with verified merchants, and keep payment inside the platform's escrow."),
+    recommendedExchanges: ["sample-exchange-ng", "sample-wallet"],
   },
   {
     _id: "country.ke",
@@ -115,7 +116,8 @@ export const seedCountries = [
     ),
     regulationUpdatedAt: "2026-10-01",
     taxGuide: pt("ket", "Kenya applies a digital asset tax on certain transfers. Platforms may deduct it automatically; keep your statements."),
-    recommendedExchanges: [],
+    howToBuy: pt("keb", "Kenyans usually buy with M-Pesa through a P2P marketplace or a licensed exchange. Check the provider's licence status, confirm the merchant has a high completion rate, and never release payment outside the platform."),
+    recommendedExchanges: ["sample-exchange-ke"],
   },
   {
     _id: "country.za",
@@ -131,6 +133,7 @@ export const seedCountries = [
     ),
     regulationUpdatedAt: "2026-10-01",
     taxGuide: pt("zat", "SARS treats crypto gains as income or capital gains depending on how you trade. Declare them on your return."),
+    howToBuy: pt("zab", "In South Africa you can buy with rand via EFT on FSCA-licensed exchanges. Search the FSCA register for the provider's FSP number first, and remember SARS expects you to declare gains."),
     recommendedExchanges: [],
   },
   {
@@ -147,6 +150,7 @@ export const seedCountries = [
     ),
     regulationUpdatedAt: "2026-10-01",
     taxGuide: pt("ght", "Tax treatment of crypto gains is still being clarified. Keep full records and get professional advice."),
+    howToBuy: pt("ghb", "Ghanaians mostly buy with mobile money or bank transfer through P2P marketplaces. Until licensing is complete, prefer platforms that publish their company details and complaints process."),
     recommendedExchanges: [],
   },
 ];

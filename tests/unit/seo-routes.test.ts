@@ -39,6 +39,15 @@ describe("sitemap XML", () => {
     expect(xml).toContain(`${site.url}/standards`);
   });
 
+  it("coins, converters and local hubs have their own sitemaps", async () => {
+    const count = async (name: string) => ((await (await callSitemap(name)).text()).match(/<url>/g) ?? []).length;
+    expect(await count("coins.xml")).toBe(200);
+    expect(await count("converters.xml")).toBe(200); // top 50 × 4 launch currencies with local context
+    expect(await count("local.xml")).toBe(4);
+    const index = await (sitemapIndexLoader() as Response).text();
+    for (const s of ["coins", "converters", "local"]) expect(index).toContain(`/sitemaps/${s}.xml`);
+  });
+
   it("unknown sitemap is 404", async () => {
     expect((await callSitemap("nope.xml")).status).toBe(404);
   });

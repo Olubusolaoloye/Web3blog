@@ -6,7 +6,6 @@
  */
 import { site } from "~/config/site";
 import type { Article, AuthorProfile, AuthorSummary, FaqItem, ImageData, SponsoredPost } from "~/lib/content/types";
-import { sanityImageUrl } from "~/lib/sanity/image";
 import { absoluteUrl } from "./meta";
 
 export type JsonLd = Record<string, unknown> & { "@type": string | string[] };
@@ -14,8 +13,9 @@ export type JsonLd = Record<string, unknown> & { "@type": string | string[] };
 const ORG_ID = `${site.url}/#organization`;
 const WEBSITE_ID = `${site.url}/#website`;
 
-export function imageUrl(image: ImageData, width = 1200): string {
-  return absoluteUrl((image.assetRef && sanityImageUrl(image.assetRef, width)) || image.url);
+/** Absolute image URL (CDN URLs are prepared on the server by the content source). */
+export function imageUrl(image: ImageData): string {
+  return absoluteUrl(image.url);
 }
 
 export function authorUrl(slug: string): string {
@@ -68,7 +68,7 @@ function articleCore(doc: Article | SponsoredPost, path: string) {
   return {
     headline: doc.title.length > 110 ? `${doc.title.slice(0, 107)}...` : doc.title,
     description: doc.seo?.description ?? doc.bottomLine[0],
-    image: [imageUrl(doc.heroImage, 1200)],
+    image: [imageUrl(doc.heroImage)],
     datePublished: doc.publishedAt,
     dateModified: doc.updatedAt ?? doc.publishedAt,
     author: doc.authors.map(personRef),
@@ -128,7 +128,7 @@ export function personJsonLd(author: AuthorProfile): JsonLd {
     url: authorUrl(author.slug),
     jobTitle: author.role,
     ...(author.bio ? { description: author.bio } : {}),
-    ...(author.photo ? { image: imageUrl(author.photo, 400) } : {}),
+    ...(author.photo ? { image: imageUrl(author.photo) } : {}),
     ...(author.expertise.length ? { knowsAbout: author.expertise } : {}),
     sameAs: Object.values(author.socials).filter(Boolean),
     worksFor: { "@id": ORG_ID },

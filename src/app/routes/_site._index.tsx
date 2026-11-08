@@ -9,7 +9,8 @@ import { getContentSource } from "~/lib/content/source.server";
 import { resolveCountry } from "~/lib/country.server";
 import { formatDateTime } from "~/lib/dates";
 import { formatPrice } from "~/lib/market/format";
-import { getMockP2pRate, getMockQuotes } from "~/lib/market/mock";
+import { safeP2p } from "~/lib/market/p2p.server";
+import { safeQuotes } from "~/lib/market/service.server";
 import { graph, organizationJsonLd, websiteJsonLd } from "~/lib/seo/jsonld";
 import { buildMeta } from "~/lib/seo/meta";
 
@@ -24,17 +25,19 @@ export function meta(_: Route.MetaArgs) {
 
 /**
  * Homepage (CLAUDE.md §7.1). Editorial modules read `listArticles`, which only returns `article` docs,
- * so sponsored posts can never appear here. Market modules are mocked until Phase 3.
+ * so sponsored posts can never appear here. Market modules read the cached market service and P2P provider.
  * Research highlight and Directory "Featured" strip are added with their data in Phase 7.
  */
 export async function loader({ request }: Route.LoaderArgs) {
   const content = getContentSource();
   const country = await resolveCountry(request);
-  const [latest, breaking, safety, local] = await Promise.all([
+  const [latest, breaking, safety, local, quotes, p2p] = await Promise.all([
     content.listArticles({ limit: 8 }),
     content.listArticles({ limit: 20 }).then((r) => r.items.find((a) => a.isBreaking)),
     content.listArticles({ type: "safety", limit: 3 }),
     content.listArticles({ country: country.code, limit: 1 }),
+    safeQuotes(country.currency, ["bitcoin", "tether"]),
+    safeP2p(country.code),
   ]);
   const hero = breaking ?? latest.items[0];
   const topStories = latest.items.filter((a) => a.slug !== hero?.slug).slice(0, 6);
@@ -47,8 +50,8 @@ export async function loader({ request }: Route.LoaderArgs) {
       countryName: country.name,
       flag: country.flag,
       locale: country.locale,
-      quotes: getMockQuotes(country.currency, ["bitcoin", "tether"]),
-      p2p: getMockP2pRate(country.code, country.currency),
+      quotes,
+      p2p,
       story: local.items[0],
     },
   };
@@ -88,6 +91,11 @@ export default function Home({ loaderData }: Route.ComponentProps) {
         <h2 id="local-hub" className="text-xl font-semibold">
           <span aria-hidden>{localHub.flag}</span> Crypto in {localHub.countryName}
         </h2>
+        <p className="mt-1 text-sm">
+          <Link to={`/local/${localHub.countryCode}`} className="text-signal-ink underline">
+            Open the {localHub.countryName} hub
+          </Link>
+        </p>
         <div className="mt-4 grid gap-6 md:grid-cols-3">
           <div className="space-y-2">
             <h3 className="text-sm font-semibold text-muted">Local prices</h3>

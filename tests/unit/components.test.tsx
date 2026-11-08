@@ -12,7 +12,10 @@ import { NewsletterBox } from "~/components/capture/NewsletterBox";
 import { SourceList } from "~/components/article/SourceList";
 import { SponsoredLabel } from "~/components/article/SponsoredLabel";
 import { PriceChip } from "~/components/market/PriceChip";
-import { getMockQuotes } from "~/lib/market/mock";
+import { toLocalQuote } from "~/lib/market/convert";
+import { FIXTURE_COINS, FIXTURE_FX } from "~/lib/market/fixtures";
+
+const getQuote = (id: string, currency = "NGN") => toLocalQuote(FIXTURE_COINS.find((c) => c.id === id)!, currency, FIXTURE_FX);
 
 afterEach(cleanup);
 
@@ -79,22 +82,25 @@ describe("SponsoredLabel", () => {
 
 describe("PriceChip", () => {
   it("shows symbol, local price and change", async () => {
-    const [btc] = getMockQuotes("NGN", ["bitcoin"]);
-    withRouter(<PriceChip quote={btc!} locale="en-NG" />);
+    withRouter(<PriceChip quote={getQuote("bitcoin")} locale="en-NG" />);
     const chip = await screen.findByTestId("price-chip");
     expect(chip).toHaveTextContent("BTC₦98.3M▲2.1%");
     expect(chip).toHaveAttribute("href", "/markets/bitcoin");
+    // 7-day mini chart, hidden until hover/focus/tap
+    const chart = screen.getByTestId("price-chip-chart");
+    expect(chart).toHaveClass("hidden");
+    expect(chart.querySelector("path")?.getAttribute("d")).toMatch(/^M/);
   });
 });
 
 describe("PortableBody", () => {
   it("renders text and custom blocks; sponsored links get sponsored nofollow", async () => {
-    const [btc] = getMockQuotes("NGN", ["bitcoin"]);
+    const btc = getQuote("bitcoin");
     withRouter(
       <PortableBody
         sponsored
         locale="en-NG"
-        quotes={{ bitcoin: btc! }}
+        quotes={{ bitcoin: btc }}
         value={[
           {
             _type: "block",
@@ -144,5 +150,32 @@ describe("NewsletterBox", () => {
     expect(honeypot?.closest("[aria-hidden]")).not.toBeNull();
     expect(within(box).getByRole("link", { name: "privacy policy" })).toHaveAttribute("href", "/privacy");
     expect(box.querySelector("form")).toHaveAttribute("action", "/api/subscribe");
+  });
+});
+
+describe("AlertCTA", () => {
+  it("is honest that alerts aren't live yet", async () => {
+    const { AlertCTA } = await import("~/components/capture/AlertCTA");
+    render(<AlertCTA symbol="BTC" currency="NGN" locale="en-NG" currentPrice={98_000_000} />);
+    expect(screen.getByRole("heading", { name: /Alert me when BTC hits/ })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Telegram" })).toBeInTheDocument();
+    expect(screen.queryByRole("option", { name: "WhatsApp" })).toBeNull(); // behind the whatsappAlerts flag
+    screen.getByRole("spinbutton").focus();
+    (screen.getByRole("spinbutton") as HTMLInputElement).value = "100000000";
+    screen.getByRole("button", { name: "Set alert" }).click();
+    expect(await screen.findByRole("status")).toHaveTextContent(/launching soon/);
+  });
+});
+
+describe("Converter", () => {
+  it("converts both ways", async () => {
+    const { Converter } = await import("~/components/market/Converter");
+    const { fireEvent } = await import("@testing-library/react");
+    render(<Converter symbol="BTC" currency="KES" price={8_000_000} locale="en-KE" />);
+    const [coin, fiat] = screen.getAllByRole("textbox") as HTMLInputElement[];
+    fireEvent.change(coin!, { target: { value: "0.5" } });
+    expect(fiat!.value).toBe("4000000");
+    fireEvent.change(fiat!, { target: { value: "80000" } });
+    expect(coin!.value).toBe("0.01");
   });
 });

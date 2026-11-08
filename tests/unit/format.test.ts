@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { changeDirection, formatChange, formatPrice } from "~/lib/market/format";
-import { convertUsd, getMockQuotes, MOCK_FX } from "~/lib/market/mock";
+import { usdTo } from "~/lib/market/convert";
+import { FIXTURE_FX } from "~/lib/market/fixtures";
 
 // Intl uses non-breaking spaces (U+00A0) between symbol and number in some locales.
 const plain = (s: string) => s.replace(/\u00a0/g, " ");
@@ -30,14 +31,9 @@ describe("formatChange", () => {
   });
 });
 
-describe("mock market data", () => {
+describe("fixture FX", () => {
   it("converts USD to each launch currency", () => {
-    for (const c of ["NGN", "KES", "ZAR", "GHS"]) expect(convertUsd(10, c)).toBeCloseTo(10 * (MOCK_FX[c] as number));
-    expect(() => convertUsd(1, "XXX")).toThrow();
-  });
-  it("returns the top 10 for the ticker and filters by id", () => {
-    expect(getMockQuotes("NGN")).toHaveLength(10);
-    const [btc] = getMockQuotes("NGN", ["bitcoin"]);
-    expect(btc?.price).toBe(64250 * 1530);
+    for (const c of ["NGN", "KES", "ZAR", "GHS"]) expect(usdTo(10, c, FIXTURE_FX)).toBeCloseTo(10 * (FIXTURE_FX[c] as number));
+    expect(() => usdTo(1, "XXX", FIXTURE_FX)).toThrow();
   });
 });

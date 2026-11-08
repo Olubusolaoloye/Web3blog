@@ -8,18 +8,19 @@ type Row<T> = T;
 type Insert<T, Optional extends keyof T> = Omit<T, Optional> & Partial<Pick<T, Optional>>;
 type Update<T> = Partial<T>;
 
-interface Table<R, O extends keyof R> {
+// Type aliases (not interfaces) so rows satisfy supabase-js's Record<string, unknown> constraint.
+type Table<R, O extends keyof R> = {
   Row: Row<R>;
   Insert: Insert<R, O>;
   Update: Update<R>;
   Relationships: [];
-}
+};
 
 export type ExperienceLevel = "beginner" | "intermediate" | "advanced";
 export type UserRole = "user" | "editor" | "admin";
 export type RiskLevel = "low" | "medium" | "high" | "unknown";
 
-export interface ProfileRow {
+export type ProfileRow = {
   id: string;
   display_name: string | null;
   country_code: string | null;
@@ -28,8 +29,8 @@ export interface ProfileRow {
   interests: string[];
   role: UserRole;
   created_at: string;
-}
-export interface SubscriberRow {
+};
+export type SubscriberRow = {
   id: string;
   email: string;
   country_code: string | null;
@@ -40,14 +41,14 @@ export interface SubscriberRow {
   beehiiv_id: string | null;
   status: "pending" | "active" | "unsubscribed" | "bounced";
   created_at: string;
-}
-export interface WatchlistRow {
+};
+export type WatchlistRow = {
   id: string;
   user_id: string;
   coin_id: string;
   created_at: string;
-}
-export interface PriceAlertRow {
+};
+export type PriceAlertRow = {
   id: string;
   user_id: string;
   coin_id: string;
@@ -58,13 +59,13 @@ export interface PriceAlertRow {
   active: boolean;
   last_triggered_at: string | null;
   created_at: string;
-}
-export interface TelegramLinkRow {
+};
+export type TelegramLinkRow = {
   user_id: string;
   chat_id: number;
   linked_at: string;
-}
-export interface RiskScanRow {
+};
+export type RiskScanRow = {
   id: string;
   chain: string;
   contract_address: string;
@@ -73,8 +74,8 @@ export interface RiskScanRow {
   provider: string;
   scanned_at: string;
   requested_by: string | null;
-}
-export interface AirdropRow {
+};
+export type AirdropRow = {
   id: string;
   name: string;
   project_url: string | null;
@@ -86,8 +87,8 @@ export interface AirdropRow {
   verified: boolean;
   notes: string | null;
   created_at: string;
-}
-export interface P2pRateRow {
+};
+export type P2pRateRow = {
   id: string;
   country_code: string;
   asset: string;
@@ -96,8 +97,8 @@ export interface P2pRateRow {
   sell: number;
   source: string;
   captured_at: string;
-}
-export interface DirectoryEntryRow {
+};
+export type DirectoryEntryRow = {
   id: string;
   slug: string;
   name: string;
@@ -112,8 +113,8 @@ export interface DirectoryEntryRow {
   rating_avg: number | null;
   published: boolean;
   created_at: string;
-}
-export interface DirectoryReviewRow {
+};
+export type DirectoryReviewRow = {
   id: string;
   entry_id: string;
   user_id: string;
@@ -121,8 +122,8 @@ export interface DirectoryReviewRow {
   body: string | null;
   status: "pending" | "approved" | "rejected";
   created_at: string;
-}
-export interface B2bLeadRow {
+};
+export type B2bLeadRow = {
   id: string;
   name: string;
   email: string;
@@ -137,8 +138,8 @@ export interface B2bLeadRow {
   source: string;
   utm: Json;
   created_at: string;
-}
-export interface OrderRow {
+};
+export type OrderRow = {
   id: string;
   lead_id: string;
   package_code: string;
@@ -146,9 +147,9 @@ export interface OrderRow {
   status: "pending" | "invoiced" | "paid" | "cancelled" | "refunded";
   payment_ref: string | null;
   created_at: string;
-}
+};
 
-export interface Database {
+export type Database = {
   public: {
     Tables: {
       profiles: Table<ProfileRow, "display_name" | "country_code" | "currency" | "experience_level" | "interests" | "role" | "created_at">;
@@ -169,4 +170,4 @@ export interface Database {
     Enums: { [_ in never]: never };
     CompositeTypes: { [_ in never]: never };
   };
-}
+};

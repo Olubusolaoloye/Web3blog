@@ -91,8 +91,9 @@ test("country switcher changes prices and theme toggle persists", async ({ page 
   await expect(page.getByTestId("bottom-line")).toBeVisible();
   await page.waitForLoadState("networkidle");
   await page.getByTestId("country-switcher").selectOption("za");
-  await expect(page.getByTestId("ticker")).toContainText("R");
+  // Wait for the switch to finish ("R" alone would match TRX/XRP in the ticker).
   await expect(page.getByTestId("ticker")).not.toContainText("₦");
+  await expect(page.getByTestId("ticker")).toContainText(/R\s\d/);
 
   const before = await page.locator("html").getAttribute("data-theme");
   await page.getByTestId("theme-toggle").click();

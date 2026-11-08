@@ -12,14 +12,14 @@ import { renderBodyHtml } from "~/lib/content/render-body.server";
 import { getContentSource } from "~/lib/content/source.server";
 import { resolveCountry } from "~/lib/country.server";
 import { formatDateTime } from "~/lib/dates";
-import { getMockQuotes } from "~/lib/market/mock";
+import { safeQuotes } from "~/lib/market/service.server";
 import { breadcrumbJsonLd, graph, sponsoredArticleJsonLd } from "~/lib/seo/jsonld";
 import { buildMeta } from "~/lib/seo/meta";
 
 export async function loader({ params, request }: Route.LoaderArgs) {
   const [post, country] = await Promise.all([getContentSource().getSponsoredPost(params.slug), resolveCountry(request)]);
   if (!post) throw data(null, { status: 404 });
-  const quotes = Object.fromEntries(getMockQuotes(country.currency, post.coins).map((q) => [q.id, q]));
+  const quotes = Object.fromEntries((await safeQuotes(country.currency, post.coins)).map((q) => [q.id, q]));
   const { body, ...postMeta } = post;
   return {
     post: postMeta,

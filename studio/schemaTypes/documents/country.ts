@@ -24,6 +24,12 @@ export const country = defineType({
     defineField({ name: "regulationUpdatedAt", title: "Regulation last reviewed", type: "date" }),
     defineField({ name: "taxGuide", type: "richText" }),
     defineField({
+      name: "howToBuy",
+      title: "How to buy (local context)",
+      description: "Short, practical local context shown on converter pages. Converter pages are not published without it.",
+      type: "richText",
+    }),
+    defineField({
       name: "recommendedExchanges",
       description: "Directory entry slugs (directory entries live in Supabase). Only verified entries are shown.",
       type: "array",

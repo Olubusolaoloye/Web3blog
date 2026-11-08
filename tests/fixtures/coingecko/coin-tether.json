@@ -1,0 +1,15 @@
+{
+  "id": "tether", "symbol": "usdt", "name": "Tether", "asset_platform_id": "ethereum",
+  "platforms": { "ethereum": "0xdac17f958d2ee523a2206206994597c13d831ec7", "tron": "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t", "": "" },
+  "categories": ["Stablecoins"],
+  "description": { "en": "Tether (USDT) is a <a href=\"https://tether.to\">stablecoin</a> pegged to the US dollar.\r\n\r\nIt is issued on many chains &amp; widely used.\r\n\r\nA third paragraph we drop." },
+  "links": { "homepage": ["https://tether.to/", "", ""] },
+  "image": { "thumb": "t.png", "small": "s.png", "large": "https://coin-images.coingecko.com/coins/images/325/large/Tether.png" },
+  "market_cap_rank": 3,
+  "market_data": {
+    "current_price": { "usd": 1.0 },
+    "ath": { "usd": 1.32, "ngn": 1500 },
+    "ath_date": { "usd": "2018-07-24T00:00:00.000Z" },
+    "circulating_supply": 120000000000, "total_supply": 121000000000, "max_supply": null
+  }
+}

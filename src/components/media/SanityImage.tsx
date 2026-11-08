@@ -1,8 +1,5 @@
-import { sanityImageUrl } from "~/lib/sanity/image";
 import type { ImageData } from "~/lib/content/types";
 import { cn } from "~/lib/utils";
-
-const WIDTHS = [480, 768, 1024, 1440, 1920];
 
 interface Props {
   image: ImageData;
@@ -13,24 +10,16 @@ interface Props {
 }
 
 /**
- * Shared image component (CLAUDE.md §9): srcset from the Sanity CDN (AVIF/WebP via auto=format),
- * explicit width/height to prevent CLS, lazy by default, fetchpriority=high only for the hero.
- * Falls back to the plain URL for local fixture images.
+ * Shared image component (CLAUDE.md §9): srcset from the Sanity CDN (AVIF/WebP via auto=format), explicit
+ * width/height to prevent CLS, lazy by default, fetchpriority=high only for the hero. `url` and `srcSet` are
+ * prepared on the server, so this component ships no image-URL builder to the browser.
  */
 export function SanityImage({ image, priority = false, sizes = "100vw", className }: Props) {
-  const ref = image.assetRef;
-  const src = (ref && sanityImageUrl(ref, 1024)) || image.url;
-  const srcSet = ref
-    ? WIDTHS.filter((w) => w <= image.width)
-        .map((w) => `${sanityImageUrl(ref, w)} ${w}w`)
-        .join(", ")
-    : undefined;
-
   return (
     <img
-      src={src}
-      srcSet={srcSet || undefined}
-      sizes={srcSet ? sizes : undefined}
+      src={image.url}
+      srcSet={image.srcSet || undefined}
+      sizes={image.srcSet ? sizes : undefined}
       alt={image.alt}
       width={image.width}
       height={image.height}

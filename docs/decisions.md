@@ -70,3 +70,39 @@ Newest last. Each entry: what, why, and how to revisit.
     on the *slow* 4G profile (harsher than the spec's "4G"). Performance score ≥ 90 is enforced everywhere.
 28. **Phase 3 warning:** TanStack Query (~13 KB gzip) would break the article budget (1.2 KB headroom). Use a small
     `setInterval` + `fetch('/api/prices')` hook on the article route, or load TanStack Query only on market pages.
+
+## 2026-11-08 — Phase 3
+
+29. **Image URLs and srcsets are built on the server** (`decorateImages` in `lib/sanity/image.server.ts`, applied
+    to every Sanity result). With a real project id the client would otherwise ship `@sanity/image-url`
+    (+3 KB gzip), pushing the article route over budget.
+30. **One cached upstream call feeds most market UI.** `/coins/markets` (top 250, USD, with 7-day sparklines) is
+    cached 60 s; ticker, chips, the table, hubs and converters all derive from it. Local prices = USD × FX
+    (open.er-api.com, cached 1 h), so every currency uses one tested conversion path. CoinGecko's own `vs_currency`
+    doesn't cover KES or GHS anyway.
+31. **No CoinGecko key → sample data**, mirroring the Sanity fallback. The UI labels it ("Sample prices" in the
+    ticker, a notice on market pages). 190 of the 200 sample coins are generated placeholders.
+32. **Cache design:** fresh/stale windows (serve stale on errors and when rate-limited), in-process single-flight,
+    and a per-instance limiter (25 calls/min) with a **reserve of 5** that optional data (charts, coin metadata)
+    can't use, so the price list always refreshes. With several server instances, set
+    `COINGECKO_MAX_CALLS_PER_MIN` to 25 ÷ instances, or rely on Upstash's shared cache to keep calls low.
+33. **Charts:** server-rendered SVG first, then `lightweight-charts` lazy-loaded after hydration (own chunk, only on
+    coin pages). The range is a URL param (`?range=1y`), so ranges work without JS and are cacheable.
+34. **Converter route file is `_site.markets.$coin_.to.$currency.tsx`** (trailing `_`): without it, flat routes
+    nest it inside the coin page, which has no `<Outlet>`.
+35. **Converter pages need CMS context.** New `country.howToBuy` field. A page exists only for top-50 coins ×
+    launched currencies whose country doc has ≥ 80 characters of how-to-buy copy; otherwise 404 and not in the
+    sitemap. URLs are lower-case (`/to/ngn`); other casings 404 rather than duplicating content.
+36. **HTML caching:** market, coin, converter and hub pages send `s-maxage=60, stale-while-revalidate=300` with
+    `Netlify-Vary: cookie=hl_country|hl_theme`. Any response that sets a cookie is `private, no-store`. The root
+    route forwards its Set-Cookie through a `headers` export so children can see it.
+37. **P2P rates:** `P2pProvider` interface; Supabase reader (latest row per country/asset) when configured, sample
+    rates otherwise. Manual entry happens in SQL until the admin UI (Phase 7). Scraper/API adapters plug in later.
+38. **Intl output must match on server and browser.** Node's ICU and Chrome's disagree on default fraction digits
+    for compact currency (`₦2.0M` vs `₦2M`), which caused hydration errors. Always pass `minimumFractionDigits`
+    explicitly; an e2e test fails on any console error on key pages.
+39. **PriceChip mini chart:** CSS hover/focus (works without JS); on touch, the first tap opens it and the second
+    follows the link. Body chips are static HTML (decision 15) and don't refresh.
+40. **AlertCTA is UI only** and says alerts launch soon. It doesn't capture anything until Phase 4/6.
+41. **Article JS is at 119.8 KB gzip (budget 120).** React DOM + React Router are ~110 KB of it. Phase 4 must load
+    analytics (GA4/PostHog) after idle, outside the preloaded route bundle, and keep new article-page UI tiny.

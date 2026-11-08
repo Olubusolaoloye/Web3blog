@@ -3,6 +3,7 @@ import {
   seedAuthors,
   seedCategories,
   seedCorrections,
+  seedCountries,
   seedSponsoredPosts,
   seedTags,
   type SeedImage,
@@ -12,6 +13,7 @@ import type {
   ArticleSummary,
   AuthorProfile,
   ContentSource,
+  CountryDoc,
   ImageData,
   ListArticlesOptions,
   SponsoredPost,
@@ -114,6 +116,7 @@ const sortedArticles = [...seedArticles].sort(byDateDesc);
 
 function matches(a: SeedArticle, o: ListArticlesOptions): boolean {
   if (o.type && a.type !== o.type) return false;
+  if (o.coin && !a.coins.includes(o.coin)) return false;
   if (o.category && taxon(a.category._ref)?.slug !== o.category) return false;
   if (o.author && !a.authors.some((r) => authorsById.get(r._ref)?.slug.current === o.author)) return false;
   if (o.country && !a.countries.some((r) => r._ref === `country.${o.country}`)) return false;
@@ -196,6 +199,24 @@ export const fixtureSource: ContentSource = {
       .filter((p) => includeNoindex || !p.noindex)
       .slice(0, limit)
       .map(sponsoredSummary);
+  },
+
+  async getCountry(code) {
+    const c = seedCountries.find((x) => x.code === code.toUpperCase());
+    if (!c) return null;
+    const doc: CountryDoc = {
+      code: c.code.toLowerCase(),
+      name: c.name,
+      currency: c.currency,
+      flag: c.flag,
+      hubIntro: c.hubIntro,
+      regulationStatus: c.regulationStatus,
+      regulationUpdatedAt: c.regulationUpdatedAt,
+      taxGuide: c.taxGuide,
+      howToBuy: c.howToBuy,
+      recommendedExchanges: c.recommendedExchanges,
+    };
+    return doc;
   },
 
   async listCorrections() {

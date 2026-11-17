@@ -1,3 +1,4 @@
+import netlifyReactRouter from "@netlify/vite-plugin-react-router";
 import { reactRouter } from "@react-router/dev/vite";
 import tailwindcss from "@tailwindcss/vite";
 import { fileURLToPath } from "node:url";
@@ -36,7 +37,8 @@ const SHARED = [
 ];
 
 export default defineConfig(({ isSsrBuild }) => ({
-  plugins: [tailwindcss(), reactRouter()],
+  // netlifyReactRouter: SSR runs as a Netlify Function on deploy (docs/decisions.md #56).
+  plugins: [tailwindcss(), reactRouter(), netlifyReactRouter()],
   resolve: {
     alias: { "~": srcDir },
   },

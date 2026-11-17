@@ -1,0 +1,7 @@
+# Netlify: SSR via @netlify/vite-plugin-react-router (serverless function); static assets from build/client.
+[build]
+  command = "pnpm build"
+  publish = "build/client"
+
+[build.environment]
+  NODE_VERSION = "22"

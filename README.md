@@ -41,6 +41,10 @@ supabase db push                # applies supabase/migrations
 pnpm db:types                   # regenerates src/lib/supabase/database.types.ts
 ```
 
+## Deploy (Netlify)
+`netlify.toml` builds with `pnpm build` and publishes `build/client`; `@netlify/vite-plugin-react-router` turns the
+SSR server into a Netlify Function. Set environment variables in the Netlify UI (they apply on the next deploy).
+
 ## Checks
 ```bash
 pnpm lint && pnpm typecheck && pnpm test   # before every commit

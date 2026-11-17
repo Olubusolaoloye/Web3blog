@@ -141,3 +141,10 @@ Newest last. Each entry: what, why, and how to revisit.
 54. **New env vars:** `EMAIL_FROM`, `TEAM_NOTIFY_EMAIL`, `SLACK_WEBHOOK_URL`, `TRUSTED_IP_HEADER`, `E2E_TEST_MODE`.
 55. **Placeholder business numbers:** package prices and audience stats in the fixtures are placeholders, labelled on
     the page and in the PDF. Set real values in the Studio (`package` docs, "Partners hub settings").
+
+## 2026-11-17 — Hosting
+
+56. **Netlify via `@netlify/vite-plugin-react-router` (v4).** SSR runs as one Netlify Function
+    (`react-router-server`, Node 22); static assets are served from `build/client` (`netlify.toml`). `pnpm start`
+    still serves the same build locally for e2e. Preview site: `hashline-preview` (sample data, no env vars set).
+    `.netlify/` is gitignored.
